@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--  <?xml-stylesheet type="text/xsl" href="\cda\Schemas\CCD.xsl"?> -->
+<ClinicalDocument xsi:schemaLocation="urn:hl7-org:v3 CDA.xsd" xmlns="urn:hl7-org:v3"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ns="urn:hl7-org:v3">
+  <typeId extension="POCD_HD000040" root="2.16.840.1.113883.1.3"/>
+  <templateId root="2.16.840.1.113883.2.9.2.90.10.99"/>
+
+  <!-- CCD RFC 133 Regione toscana-->
+  <id root="db734647-fc99-424c-a864-7e3cda82e703"/>
+  <code code="34133-9" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"
+    displayName="Summarization of episode note"/>
+  <title>Fondazione Gabriele Monasterio Continuity of Care Document IEHR</title>
+  <effectiveTime value="20210618160126+0200"/>
+  <confidentialityCode code="R" codeSystem="2.16.840.1.113883.5.25"/>
+  <languageCode code="it_IT"/>
+  <recordTarget>
+    <!--OBBLIGATORIO CDA R2-->
+
+    <patientRole>
+      <id assigningAuthorityName="C7_IEHR" extension="FTGM01" nullFlavor="MSK"
+        root="2.16.840.1.113883.2.9.2.90.3.123"/>
+      <patient>
+        <name>
+          <given>FTGM01</given>
+          <family>FTGM</family>
+        </name>
+        <administrativeGenderCode code="M" codeSystem="2.16.840.1.113883.5.1"/>
+        <birthTime value="20131205"/>
+      </patient>
+      <providerOrganization>
+        <id root="2.16.840.1.113883.2.9.2.90907"/>
+        <name>Fondazione Gabriele Monasterio</name>
+      </providerOrganization>
+    </patientRole>
+  </recordTarget>
+
+  <author>
+    <!--OBBLIGATORIO CDA R2-->
+    <time value="20210618160126+0200"/>
+    <assignedAuthor>
+      <id extension="FSTPLG59A26F839C" root="2.16.840.1.113883.2.9.4.3.2"/>
+      <!-- <id root="2.16.840.1.113883.2.9.90.4.2" extension=""/> -->
+      <assignedPerson>
+        <name>
+          <given>PIERLUIGI</given>
+          <family>FESTA</family>
+        </name>
+      </assignedPerson>
+    </assignedAuthor>
+  </author>
+
+  <custodian>
+    <!--OBBLIGATORIO CDA R2-->
+    <assignedCustodian>
+      <representedCustodianOrganization>
+        <!--OID FTGM -->
+        <id root="2.16.840.1.113883.2.9.2.90907"/>
+        <!--Organizzazione che ha eseguito la visita -->
+        <name>Fondazione Gabriele Monasterio</name>
+      </representedCustodianOrganization>
+    </assignedCustodian>
+  </custodian>
+
+  <participant typeCode="IND">
+    <associatedEntity classCode="GUAR">
+      <id root="4ff51570-83a9-47b7-91f2-93ba30373141"/>
+      <addr>
+        <streetAddressLine>Via Aurelia Sud</streetAddressLine>
+        <city>Massa</city>
+      </addr>
+      <telecom value="+390503152822"/>
+      <associatedPerson>
+        <name>
+          <given>PIERLUIGI</given>
+          <family>FESTA</family>
+        </name>
+      </associatedPerson>
+    </associatedEntity>
+  </participant>
+
+  <componentOf typeCode="COMP">
+    <encompassingEncounter classCode="ENC" moodCode="EVN">
+      <id assigningAuthorityName="C7" extension="6129269" root="2.16.840.1.113883.2.9.2.90907.4.1.1"/> <!-- DiagnosticReport.encounter.reference = id.extension -->
+      <!-- OID di C7, authority name per definire gli ID degli Encounter/Visit -->
+      <code code="AMB" codeSystem="2.16.840.1.113883.1.11.13955" codeSystemName="ActEncounterCode"
+        displayName="ambulatory"/>
+      <effectiveTime>
+        <low value="20210618"/>
+        <high value="20210618"/>
+      </effectiveTime>
+      <encounterParticipant typeCode="ATND">
+        <!-- ATND (attender): The primary practitioner that oversees a patient's care during an encounter. -->
+        <assignedEntity>
+          <id assigningAuthorityName="C7_FTGM" extension="ATND_ID"
+            root="2.16.840.1.113883.2.9.2.90907"/>
+        </assignedEntity>
+      </encounterParticipant>
+      <location typeCode="LOC">
+        <healthCareFacility classCode="SDLOC">
+          <id assigningAuthorityName="C7_FTGM" root="2.16.840.1.113883.2.9.2.90907"/>
+        </healthCareFacility>
+      </location>
+    </encompassingEncounter>
+  </componentOf>
+
+  <component>
+    <structuredBody>
+
+     <!-- 
+				********************************************************
+				Indagini diagnostiche e esami di laboratorio - Results
+				********************************************************
+		-->
+
+      <component>
+        <section>
+          <templateId root="2.16.840.1.113883.10.20.1.14"/>
+          <!-- Results section template -->
+          <code code="30954-2" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"
+            displayName="Relevant diagnostic tests and/or laboratory data"/> <!-- Observation.category -->
+          <title>Results</title>
+          <text/>
+          <entry typeCode="DRIV">
+            <organizer classCode="CLUSTER" moodCode="EVN">
+              <templateId root="2.16.840.1.113883.10.20.1.32"/>
+              <!-- Results organizer template -->
+              <id root="31616000-1bea-440e-bad0-ae8996a1139e"/>
+              <code code="252275004" codeSystem="2.16.840.1.113883.1.11.20.16"
+                codeSystemName="ResultTypeCode" displayName="Hematology"/>
+              <statusCode code="completed"/>
+              <effectiveTime value="20170703"/>
+                       
+           <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.1.31"/>
+                  <!-- Result observation template -->
+                  <id root="2f8c412f-a58b-40c3-b56d-0b6305b5c117"/>
+                  <!-- codeSystem="2.16.840.1.113883.6.1" LOINC OID -->
+                  <code code="789-8" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Eritrociti"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20190625083000"/>
+                  <!-- <value unit="x10^6/L" value="4.12" xsi:type="PQ"/> -->
+                  <value unit="x10^6/L" value="4.12" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83" />
+                  <referenceRange>
+                    <observationRange>
+                        <value xsi:type="ST">
+                            3,89  -  5,29
+                        </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+            </component>
+         
+           <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.1.31"/>
+                  <!-- Result observation template -->
+                  <id root="2f8c412f-a58b-40c3-b56d-0b6305b5c117"/>
+                  <!-- codeSystem="2.16.840.1.113883.6.1" LOINC OID -->
+                  <code code="718-7" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Emoglobina"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20190625083000"/>
+                  <!-- <value unit="g/dL" value="11.3" xsi:type="PQ"/> -->
+                  <value unit="g/dL" value="11.3" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83" />
+                  <referenceRange>
+                    <observationRange>
+                        <value xsi:type="ST">
+                            10,2  -  14,5
+                        </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+            </component>
+         
+           <component>
+                <observation classCode="OBS" moodCode="EVN">
+                  <templateId root="2.16.840.1.113883.10.20.1.31"/>
+                  <!-- Result observation template -->
+                  <id root="2f8c412f-a58b-40c3-b56d-0b6305b5c117"/>
+                  <!-- codeSystem="2.16.840.1.113883.6.1" LOINC OID -->
+                  <code code="4544-3" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC" displayName="Ematocrito (HCT)"/>
+                  <statusCode code="completed"/>
+                  <effectiveTime value="20190625083000"/>
+                  <!-- <value unit="%" value="33.2" xsi:type="PQ"/> -->
+                  <value unit="%" value="33.2" xsi:type="PQ"/>
+                  <interpretationCode code="N" codeSystem="2.16.840.1.113883.5.83" />
+                  <referenceRange>
+                    <observationRange>
+                        <value xsi:type="ST">
+                            31,0  -  43,5
+                        </value>
+                    </observationRange>
+                  </referenceRange>
+                </observation>
+            </component>
+           </organizer>
+          </entry>
+        </section>
+      </component>
+<!-- fine tabella parametri bioumorali-->
+
+
+    </structuredBody>
+  </component>
+</ClinicalDocument>
