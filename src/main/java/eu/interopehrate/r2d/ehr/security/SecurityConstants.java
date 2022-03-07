@@ -32,7 +32,7 @@ public final class SecurityConstants {
 	/**
 	 * Header Parameter name for eidas token
 	 */
-	public final static String R2D_REQUEST_CITIZEN_PARAM_NAME = "R2D-Citizen-Token";
+	public final static String R2D_REQUEST_CITIZEN_PARAM_NAME = "eIDAS-Citizen-Token";
 
 	/**
 	 * Header Parameter name for Citizen object

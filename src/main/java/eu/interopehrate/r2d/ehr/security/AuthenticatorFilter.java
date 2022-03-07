@@ -41,7 +41,6 @@ public class AuthenticatorFilter implements Filter {
 				
 		HttpServletRequest hReq = (HttpServletRequest)request;
 		HttpServletResponse hRes = (HttpServletResponse)response;
-		LOGGER.info("Received request: " + hReq.getRequestURL());
 
 		// Get the Authorization header parameter
 		Optional<String> o = Optional.fromNullable(hReq.getHeader(SecurityConstants.AUTH_HEADER));
@@ -64,7 +63,7 @@ public class AuthenticatorFilter implements Filter {
 				hRes.sendError(HttpStatus.SC_UNAUTHORIZED, "The provided credentials are not valid! The request cannot be processed.");			
 				return;
 		    } 
-			LOGGER.info("Request authenticated to R2D Server.");
+			LOGGER.info(String.format("Request %s authenticated to R2D Server.", hReq.getRequestURL()));
 		} else {
 			LOGGER.error("Authorization header is not used properly! The request cannot be processed.");
 			hRes.sendError(HttpStatus.SC_UNAUTHORIZED, "Authorization header is not used properly! The request cannot be processed.");
