@@ -20,20 +20,20 @@ public interface EHRService {
 	/**
 	 * 
 	 * @param theRequestId
-	 * @param theCitizen
+	 * @param ehrPatientId
 	 * 
 	 * @return
 	 * @throws Exception
 	 */
 	EHRResponse executeGetPatientSummary (String theRequestId, 
-			Citizen theCitizen) throws Exception;
+			String ehrPatientId) throws Exception;
 
 	
 	/**
 	 * 
 	 * @param from
 	 * @param theRequestId
-	 * @param theCitizen
+	 * @param ehrPatientId
 	 * 
 	 * @return
 	 * @throws Exception
@@ -41,13 +41,13 @@ public interface EHRService {
 	EHRResponse executeSearchEncounter(
 			Date theFromDate, 
 			String theRequestId, 
-			Citizen theCitizen) throws Exception;
+			String ehrPatientId) throws Exception;
 	
 	/**
 	 * 
 	 * @param theEncounterId
 	 * @param theRequestId
-	 * @param theCitizen
+	 * @param ehrPatientId
 	 * 
 	 * @return
 	 * @throws Exception
@@ -55,7 +55,7 @@ public interface EHRService {
 	EHRResponse executeEncounterEverything(
 			String theEncounterId, 
 			String theRequestId, 
-			Citizen theCitizen) throws Exception;
+			String ehrPatientId) throws Exception;
 		
 	
 }

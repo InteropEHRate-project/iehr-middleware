@@ -30,11 +30,9 @@ public class PatientResourceProvider implements IResourceProvider {
 	
 	@Operation(name="$patient-summary", idempotent=true)
 	public Bundle patientSummary(HttpServletRequest theRequest) {
-		// Retrieves requestId and Citizen from request
-		String theRequestId = theRequest.getHeader(SecurityConstants.R2D_REQUEST_ID_PARAM_NAME);
-		Citizen theCitizen = (Citizen)theRequest.getAttribute(SecurityConstants.CITIZEN_ATTR_NAME);
-
-		EHRRequest request = new EHRRequest(theRequestId, theCitizen, R2DOperation.PATIENT_SUMMARY);
+		// Retrieves EHRRequest from the HttpRequest
+		EHRRequest request = (EHRRequest)theRequest.getAttribute(SecurityConstants.EHR_REQUEST_ATTR_NAME);
+		request.setOperation(R2DOperation.PATIENT_SUMMARY);
 
 		// starts asynchronous request processing
 		requestController.startRequestProcessing(request);

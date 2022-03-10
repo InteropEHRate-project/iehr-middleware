@@ -15,6 +15,7 @@ import eu.interopehrate.r2d.ehr.model.EHRRequest;
 
 public class EHRRequestProcessor implements Runnable {
 
+	static final String PATIENT_ID_KEY = "PATIENT_ID_KEY";
 	static final String EHR_REQUEST_KEY = "EHR_REQUEST_KEY";
 	static final String CDA_DATA_KEY = "CDA_DATA_KEY";
 	static final String FHIR_DATA_KEY = "FHIR_DATA_KEY";
@@ -30,6 +31,7 @@ public class EHRRequestProcessor implements Runnable {
 
 	@Override
 	public void run() {
+		Work authorizeCitizenToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("AuthorizeCitizenToEHR");
 		Work requestToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("RequestToEHRWork");
 		Work requestToIHS = (Work)EHRContextProvider.getApplicationContext().getBean("RequestToIHSWork");
 		Work SendFailureToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendFailureToR2DWork");
@@ -51,6 +53,14 @@ public class EHRRequestProcessor implements Runnable {
 				.then(secondaryWorkflow)
 				.otherwise(SendFailureToR2D)
 				.build();
+		
+		WorkFlow preliminaryWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
+				.named("Preliminary Workflow")
+				.execute(authorizeCitizenToEHR)
+				.when(WorkReportPredicate.COMPLETED)
+				.then(primaryWorkflow)
+				.otherwise(SendFailureToR2D)
+				.build();
 
 		// creates the engine instance
 		WorkFlowEngine workFlowEngine = WorkFlowEngineBuilder.aNewWorkFlowEngine().build();
@@ -60,7 +70,7 @@ public class EHRRequestProcessor implements Runnable {
 		
 		// starts the workflow
 		logger.info("Starting processing of request: " + ehrRequest.getR2dRequestId());
-		workFlowEngine.run(primaryWorkflow, workContext);
+		workFlowEngine.run(preliminaryWorkflow, workContext);
 		
 		String errorMsg = (String) workContext.get(ERROR_MESSAGE_KEY);
 		if (errorMsg != null) 

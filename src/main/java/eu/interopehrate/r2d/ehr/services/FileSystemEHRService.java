@@ -20,10 +20,10 @@ public class FileSystemEHRService implements EHRService {
 	}
 
 	@Override
-	public EHRResponse executeGetPatientSummary(String theRequestId, Citizen theCitizen) throws Exception {
+	public EHRResponse executeGetPatientSummary(String theRequestId, String ehrPatientId) throws Exception {
 		Thread.sleep(SLEEP_PERIOD);
 
-		StringBuilder fileName = new StringBuilder(theCitizen.getPersonIdentifier());
+		StringBuilder fileName = new StringBuilder(ehrPatientId);
 		fileName.append("/CDA/PatientSummary.xml");
 		
 		return createResponse(fileName.toString());
@@ -32,11 +32,11 @@ public class FileSystemEHRService implements EHRService {
 	
 	@Override
 	public EHRResponse executeSearchEncounter(Date theFromDate, 
-			String theRequestId, Citizen theCitizen) throws Exception {
+			String theRequestId, String ehrPatientId) throws Exception {
 
 		Thread.sleep(SLEEP_PERIOD);
 		
-		StringBuilder fileName = new StringBuilder(theCitizen.getPersonIdentifier());
+		StringBuilder fileName = new StringBuilder(ehrPatientId);
 		fileName.append("/CDA/EncounterList.xml");
 		
 		return createResponse(fileName.toString());
@@ -45,11 +45,11 @@ public class FileSystemEHRService implements EHRService {
 	
 	@Override
 	public EHRResponse executeEncounterEverything(String theEncounterId, 
-			String theRequestId, Citizen theCitizen) throws Exception {
+			String theRequestId, String ehrPatientId) throws Exception {
 
 		Thread.sleep(SLEEP_PERIOD);
 
-		StringBuilder fileName = new StringBuilder(theCitizen.getPersonIdentifier());
+		StringBuilder fileName = new StringBuilder(ehrPatientId);
 		fileName.append("/CDA/Encounter").append(theEncounterId).append("$everything.xml");
 		
 		return createResponse(fileName.toString());

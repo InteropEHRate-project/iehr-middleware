@@ -1,12 +1,13 @@
 package eu.interopehrate.r2d.ehr.model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class Citizen {
 
 	public String firstName;
 	public String familyName;
-	public LocalDate dateOfBirth;
+	public String dateOfBirth;
 	public String personIdentifier;
 	public String gender;
 	
@@ -26,11 +27,15 @@ public class Citizen {
 		this.familyName = familyName;
 	}
 	
-	public LocalDate getDateOfBirth() {
-		return dateOfBirth;
+	public LocalDate getDateOfBirthAsLocalDate() {
+		return LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern("uuuu-M-d"));
 	}
 	
-	public void setDateOfBirth(LocalDate dateOfBirth) {
+	public String getDateOfBirth() {
+		return dateOfBirth;
+	}
+
+	public void setDateOfBirth(String dateOfBirth) {
 		this.dateOfBirth = dateOfBirth;
 	}
 	

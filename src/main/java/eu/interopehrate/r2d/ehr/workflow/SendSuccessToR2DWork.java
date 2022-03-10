@@ -22,7 +22,7 @@ public class SendSuccessToR2DWork implements Work {
 	@Override
 	public WorkReport execute(WorkContext workContext) {
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
-		logger.info("Started Task for request: " + request.getR2dRequestId());
+		logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 		
 		try {
 			String fhirBundle = (String) workContext.get(EHRRequestProcessor.FHIR_DATA_KEY);

@@ -41,13 +41,10 @@ public class EncounterResourceProvider implements IResourceProvider {
 			@OptionalParam(name = Encounter.SP_DATE) DateParam theFromDate,
 			HttpServletRequest theRequest) {	
 		
-		// Retrieves requestId and Citizen from request
-		String theRequestId = theRequest.getHeader(SecurityConstants.R2D_REQUEST_ID_PARAM_NAME);
-		Citizen theCitizen = (Citizen)theRequest.getAttribute(SecurityConstants.CITIZEN_ATTR_NAME);
-		// Extracts request parameters
+		// Retrieves EHRRequest from the HttpRequest
+		EHRRequest request = (EHRRequest)theRequest.getAttribute(SecurityConstants.EHR_REQUEST_ATTR_NAME);
+		request.setOperation(R2DOperation.SEARCH_ENCOUNTER);
 		Date fromDate = (theFromDate == null) ? null : theFromDate.getValue();
-		
-		EHRRequest request = new EHRRequest(theRequestId, theCitizen, R2DOperation.SEARCH_ENCOUNTER);
 		request.addParameter(EHRRequest.PARAM_FROM, fromDate);
 
 		// starts asynchronous request processing
@@ -59,11 +56,9 @@ public class EncounterResourceProvider implements IResourceProvider {
 	
 	@Operation(name="$everything", idempotent=true)
 	public Bundle everything(@IdParam IdType theEncounterId, HttpServletRequest theRequest) {
-		// Retrieves requestId and Citizen from request
-		String theRequestId = theRequest.getHeader(SecurityConstants.R2D_REQUEST_ID_PARAM_NAME);
-		Citizen theCitizen = (Citizen)theRequest.getAttribute(SecurityConstants.CITIZEN_ATTR_NAME);
-
-		EHRRequest request = new EHRRequest(theRequestId, theCitizen, R2DOperation.ENCOUNTER_EVERYTHING);
+		// Retrieves EHRRequest from the HttpRequest
+		EHRRequest request = (EHRRequest)theRequest.getAttribute(SecurityConstants.EHR_REQUEST_ATTR_NAME);
+		request.setOperation(R2DOperation.ENCOUNTER_EVERYTHING);
 		request.addParameter(EHRRequest.PARAM_RESOURCE_ID, theEncounterId);
 
 		// starts asynchronous request processing

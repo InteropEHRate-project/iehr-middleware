@@ -24,7 +24,7 @@ class RequestToIHSWork implements Work {
 	@Override
 	public WorkReport execute(WorkContext workContext) {
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
-		logger.info("Started Task for request: " + request.getR2dRequestId());
+		logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 		
 		// #1 submit first request to the IHS Service for requesting a conversion
 		try {

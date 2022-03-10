@@ -1,6 +1,7 @@
 package eu.interopehrate.r2d.ehr.services;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -11,15 +12,17 @@ import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.ContentType;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
+import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class RestEHRService implements EHRService {
 	private final OkHttpClient client;
 	private static final Log logger = LogFactory.getLog(RestEHRService.class);
+	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("YYYY-MM-dd");
 
-	
 	public RestEHRService() {
 		client = new OkHttpClient.Builder()
 			      .readTimeout(2, TimeUnit.MINUTES)
@@ -28,28 +31,72 @@ public class RestEHRService implements EHRService {
 			      .build();
 	}
 
-
 	@Override
 	public EHRResponse executeGetPatient(String theRequestId, Citizen theCitizen) throws Exception {
-		return null;
+		// #1 builds service URL
+		StringBuilder serviceURL = new StringBuilder();
+		serviceURL.append(Configuration.getProperty(Configuration.EHR_ENDPOINT));
+		serviceURL.append("/citizen/$authorize");
+		
+		// #2 Creates the body of the POST request
+		RequestBody body = new FormBody.Builder()
+				.add("FirstName", theCitizen.getFirstName())
+				.add("FamilyName", theCitizen.getFamilyName())
+				.add("DateOfBirth", theCitizen.getDateOfBirth())
+				.add("PersonIdentifier", theCitizen.getPersonIdentifier())
+				.build();
+		
+		// #3 Creates the POST request
+		Request postRequest = new Request.Builder()
+                .url(serviceURL.toString())
+                .post(body)
+                .build();
+		
+		// #4 execute POST
+		Response httpResponse = null;
+		try {
+			logger.debug(String.format("Submitting request to EHR: %s", serviceURL.toString()));
+			httpResponse = client.newCall(postRequest).execute();
+		} catch (IOException ioe) {
+			logger.error(String.format("Error %s while sending POST request to EHR Server", ioe.getMessage()));
+			throw ioe;
+		}
+		
+		// #5 Checks the response
+		if (httpResponse.isSuccessful()) {
+			EHRResponse ehrResponse = new EHRResponse();
+			ehrResponse.setContentType(ContentType.TEXT);
+			ehrResponse.setResponse(httpResponse.body().string());
+			logger.info("Response retrieved from EHR: " + ehrResponse.getResponse());
+			return ehrResponse;
+		} else {
+			String errMsg = String.format("Error %d while sending request to EHR Server: %s", 
+	    			httpResponse.code(), httpResponse.message());
+
+			logger.error(errMsg);
+			throw new IOException(errMsg);
+		}
 	}
 
 	
 	@Override
-	public EHRResponse executeGetPatientSummary(String theRequestId, Citizen theCitizen) throws Exception {
+	public EHRResponse executeGetPatientSummary(String theRequestId, String ehrPatientId) throws Exception {
 		return null;
 	}
 
 	
 	@Override
 	public EHRResponse executeSearchEncounter(Date theFromDate, String theRequestId, 
-			Citizen theCitizen) throws Exception {
+			String ehrPatientId) throws Exception {
 		logger.debug(String.format("Executing Encounter.search..."));
 		
 		// #1 builds service URL
 		StringBuilder serviceURL = new StringBuilder();
 		serviceURL.append(Configuration.getProperty(Configuration.EHR_ENDPOINT));
-		serviceURL.append("/Encounter?citizenId=").append(theCitizen.getPersonIdentifier());
+		serviceURL.append("/Encounter?citizenId=").append(ehrPatientId);
+		if (theFromDate != null) {
+			serviceURL.append("&from=").append(dateFormatter.format(theFromDate));
+		}
 		
 		return executeGET(serviceURL.toString());
 	}
@@ -57,13 +104,13 @@ public class RestEHRService implements EHRService {
 
 	@Override
 	public EHRResponse executeEncounterEverything(String theEncounterId, String theRequestId, 
-			Citizen theCitizen) throws Exception {
+			String ehrPatientId) throws Exception {
 		logger.debug(String.format("Executing Encounter/%s/$everything", theEncounterId));
 
 		// builds callback URL
 		StringBuilder serviceURL = new StringBuilder(Configuration.getR2DServicesContextPath());
 		serviceURL.append(Configuration.getProperty(Configuration.EHR_ENDPOINT));
-		serviceURL.append("/Encounter/everything?citizenId=").append(theCitizen.getPersonIdentifier());
+		serviceURL.append("/Encounter/everything?citizenId=").append(ehrPatientId);
 		serviceURL.append("&encounterId=").append(theEncounterId);
 		
 		return executeGET(serviceURL.toString());
@@ -83,7 +130,7 @@ public class RestEHRService implements EHRService {
 			logger.debug(String.format("Submitting request to EHR: %s", URL.toString()));
 			httpResponse = client.newCall(getRequest).execute();
 		} catch (IOException ioe) {
-			logger.error(String.format("Error %s while sending POST request to IHS Server", ioe.getMessage()));
+			logger.error(String.format("Error %s while sending GET request to EHR Server", ioe.getMessage()));
 			throw ioe;
 		}
 		
@@ -94,7 +141,7 @@ public class RestEHRService implements EHRService {
 			ehrResponse.setResponse(httpResponse.body().string());
 			return ehrResponse;
 		} else {
-			String errMsg = String.format("Error %d while sending request to IHS Server: %s", 
+			String errMsg = String.format("Error %d while sending request to EHR Server: %s", 
 	    			httpResponse.code(), httpResponse.message());
 
 			logger.error(errMsg);

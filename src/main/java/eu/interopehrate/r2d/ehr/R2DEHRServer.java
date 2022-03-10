@@ -20,7 +20,7 @@ import ca.uhn.fhir.rest.server.interceptor.ResponseHighlighterInterceptor;
 import eu.interopehrate.r2d.ehr.interceptors.CapabilityStatementCustomizer;
 import eu.interopehrate.r2d.ehr.providers.EncounterResourceProvider;
 import eu.interopehrate.r2d.ehr.providers.PatientResourceProvider;
-import eu.interopehrate.r2d.ehr.security.R2DRequestAuthenticator;
+import eu.interopehrate.r2d.ehr.security.R2DRequestValidator;
 
 public class R2DEHRServer extends RestfulServer {
 
@@ -77,7 +77,7 @@ public class R2DEHRServer extends RestfulServer {
 		 */
 		registerInterceptor(new ResponseHighlighterInterceptor());
 		registerInterceptor(new CapabilityStatementCustomizer());
-		registerInterceptor(new R2DRequestAuthenticator());
+		registerInterceptor(new R2DRequestValidator());
 		
 		/*
 		 * Tells the server to return pretty-printed responses by default

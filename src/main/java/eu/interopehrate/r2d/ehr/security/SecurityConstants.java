@@ -38,6 +38,10 @@ public final class SecurityConstants {
 	 * Header Parameter name for Citizen object
 	 */
 	public final static String CITIZEN_ATTR_NAME = "R2D-Citizen";
-	
+
+	/**
+	 * Header Parameter name for Citizen object
+	 */
+	public final static String EHR_REQUEST_ATTR_NAME = "EHR-Request";
 
 }

@@ -82,9 +82,15 @@ public class RestIHSService implements IHSService {
 		// #1 Creates the URL for sendong the request to IHS
 		String ihsBase = Configuration.getProperty(Configuration.IHS_ENDPOINT);
 		StringBuilder serviceURL = new StringBuilder(ihsBase);
-		serviceURL.append("/retrieveFHIRHealthRecord?call=");
+		serviceURL.append("/retrieveFHIRHealthRecord?");
+		// handles 'lang' parameter
+		if (ehrRequest.getPreferredLanguage() != null) 
+			serviceURL.append("lang=").append(ehrRequest.getPreferredLanguage()).append("&");
+		
+		// handles 'call' parameter
+		serviceURL.append("call=");
 
-		// #2 customise the URL
+		// #2 customize the URL
 		if (ehrRequest.getOperation() == R2DOperation.SEARCH_ENCOUNTER) {
 			serviceURL.append("encounter");
 		} else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING) {
