@@ -22,7 +22,7 @@ class AuthorizeCitizenToEHR implements Work {
 	@Override
 	public WorkReport execute(WorkContext workContext) {
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
-		logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
+		//logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 	
 		EHRResponse response = null;
 		try {
@@ -34,7 +34,7 @@ class AuthorizeCitizenToEHR implements Work {
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, response.getMessage());
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 			} else {
-				logger.info("Task completed succesfully!");
+				//logger.info("Task completed succesfully!");
 				workContext.put(EHRRequestProcessor.PATIENT_ID_KEY, response.getResponse());
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);				
 			}		

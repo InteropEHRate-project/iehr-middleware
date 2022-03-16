@@ -39,7 +39,7 @@ public class EHRRequestProcessor implements Runnable {
 			
 		// Builds the workflow
 		WorkFlow secondaryWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("Secondary Workflow")
+				.named("R2DRequest To IHS workflow")
 				.execute(requestToIHS)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(SendSuccessToR2D)
@@ -47,7 +47,7 @@ public class EHRRequestProcessor implements Runnable {
 				.build();
 
 		WorkFlow primaryWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("Primary Workflow")
+				.named("R2DRequest To EHR workflow")
 				.execute(requestToEHR)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(secondaryWorkflow)
@@ -55,7 +55,7 @@ public class EHRRequestProcessor implements Runnable {
 				.build();
 		
 		WorkFlow preliminaryWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("Preliminary Workflow")
+				.named("R2DRequest management workflow")
 				.execute(authorizeCitizenToEHR)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(primaryWorkflow)
@@ -64,12 +64,13 @@ public class EHRRequestProcessor implements Runnable {
 
 		// creates the engine instance
 		WorkFlowEngine workFlowEngine = WorkFlowEngineBuilder.aNewWorkFlowEngine().build();
+
 		// creates the work context and adds the ehrRequest to it
 		WorkContext workContext = new WorkContext();
 		workContext.put(EHR_REQUEST_KEY, ehrRequest);
 		
 		// starts the workflow
-		logger.info("Starting processing of request: " + ehrRequest.getR2dRequestId());
+		logger.info(String.format("Starting processing of request: %s", ehrRequest.getR2dRequestId()));
 		workFlowEngine.run(preliminaryWorkflow, workContext);
 		
 		String errorMsg = (String) workContext.get(ERROR_MESSAGE_KEY);

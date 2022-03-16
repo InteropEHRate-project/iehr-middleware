@@ -1,9 +1,6 @@
 package eu.interopehrate.r2d.ehr.security;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-import java.util.Locale.LanguageRange;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +14,6 @@ import ca.uhn.fhir.rest.api.server.RequestDetails;
 import ca.uhn.fhir.rest.server.exceptions.AuthenticationException;
 import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
-import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.sr2dsm.SR2DSM;
 import eu.interopehrate.sr2dsm.model.ResponseDetails;
 import eu.interopehrate.sr2dsm.model.UserDetails;
@@ -60,9 +56,8 @@ public class R2DRequestValidator {
 		
 		// #4 checks for a preferred language
 		String preferredLanguages = theRequestDetails.getHeader("Accept-Language");
-		LOGGER.info("Preferred languages: " + preferredLanguages);			
-		
-		// Creates the EHRRequest and store it as a request attribute
+
+		// #5 Creates the EHRRequest and store it as a request attribute
 		EHRRequest request = new EHRRequest(reqIdOpt.get(), theCitizen, preferredLanguages);
 		theRequestDetails.setAttribute(SecurityConstants.EHR_REQUEST_ATTR_NAME, request);
 		

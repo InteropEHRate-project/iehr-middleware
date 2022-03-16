@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.server.IResourceProvider;
-import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.r2d.ehr.security.SecurityConstants;

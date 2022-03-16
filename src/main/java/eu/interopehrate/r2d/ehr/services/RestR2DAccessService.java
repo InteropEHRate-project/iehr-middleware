@@ -25,7 +25,7 @@ public class RestR2DAccessService implements R2DAccessService {
 	public RestR2DAccessService() {
 		// TODO: add proxy to configuration?
 		client = new OkHttpClient.Builder()
-			      .writeTimeout(20, TimeUnit.SECONDS)
+			      .writeTimeout(2, TimeUnit.MINUTES)
 			      .retryOnConnectionFailure(true)
 			      .build();
 	}
@@ -52,18 +52,18 @@ public class RestR2DAccessService implements R2DAccessService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Submitting request to IHS: %s", serviceURL.toString()));
+			logger.debug(String.format("Invoking R2D Server callback: %s", serviceURL.toString()));
 			httpResponse = client.newCall(request).execute();
 			// #5 Checks the response
 			if (!httpResponse.isSuccessful()) {
-				String errMsg = String.format("Error %d while sending request to R2D Server: %s", 
+				String errMsg = String.format("Error %d while invoking R2D Server callback: %s", 
 		    			httpResponse.code(), httpResponse.message());
 
 				logger.error(errMsg);
 				throw new IOException(errMsg);
 			}
 		} catch (IOException ioe) {
-			logger.error(String.format("Error %s while sending request to R2D Server", ioe.getMessage()));
+			logger.error(String.format("Error %s while invoking R2D Server callback", ioe.getMessage()));
 			throw ioe;
 		}
 	}
@@ -71,7 +71,6 @@ public class RestR2DAccessService implements R2DAccessService {
 	
 	@Override
 	public void sendUnsuccesfulResponse(EHRRequest ehrRequest, String errorMsg) throws Exception {
-		logger.debug("Sending this error msg to R2D Access: " + errorMsg);
 		// #1 Creates the URL
 		StringBuilder serviceURL = new StringBuilder(Configuration.getR2DServicesContextPath());
 		serviceURL.append("/callbacks/").append(ehrRequest.getR2dRequestId());
@@ -92,18 +91,18 @@ public class RestR2DAccessService implements R2DAccessService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Submitting request to IHS: %s", serviceURL.toString()));
+			logger.debug(String.format("Invoking R2D Server callback: %s", serviceURL.toString()));
 			httpResponse = client.newCall(request).execute();
 			// #5 Checks the response
 			if (!httpResponse.isSuccessful()) {
-				String errMsg = String.format("Error %d while sending request to R2D Server: %s", 
+				String errMsg = String.format("Error %d while invoking R2D Server callback: %s", 
 		    			httpResponse.code(), httpResponse.message());
 
 				logger.error(errMsg);
 				throw new IOException(errMsg);
 			}
 		} catch (IOException ioe) {
-			logger.error(String.format("Error %s while sending request to R2D Server", ioe.getMessage()));
+			logger.error(String.format("Error %s while invoking R2D Server callback", ioe.getMessage()));
 			throw ioe;
 		}
 	}

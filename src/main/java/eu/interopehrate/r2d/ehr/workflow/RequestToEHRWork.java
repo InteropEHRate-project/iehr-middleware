@@ -25,7 +25,7 @@ class RequestToEHRWork implements Work {
 	@Override
 	public WorkReport execute(WorkContext workContext) {
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
-		logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
+		// logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 		
 		String ehrPatientId = (String)workContext.get(EHRRequestProcessor.PATIENT_ID_KEY);
 
@@ -48,7 +48,8 @@ class RequestToEHRWork implements Work {
 						request.getR2dRequestId(), 
 						ehrPatientId);
 			} else {
-				logger.error("Task completed with error: EHR Operation " + request.getOperation() + " not implemented.");
+				logger.error(String.format("Task '%s' completed with error: EHR Operation %s not implemented", 
+						getClass().getSimpleName(), request.getOperation()));
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, 
 						"EHR Operation " + request.getOperation() + " not implemented.");
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
@@ -56,16 +57,16 @@ class RequestToEHRWork implements Work {
 			
 			// Check response
 			if (response.getStatus() == EHRResponseStatus.FAILED) {
-				logger.error("Task completed with error: " + response.getMessage());
+				logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,response.getMessage()));
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, response.getMessage());
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 			} else {
-				logger.info("Task completed succesfully!");
+				// logger.info("Task completed succesfully!");
 				workContext.put(EHRRequestProcessor.CDA_DATA_KEY, response.getResponse());
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);				
 			}		
 		} catch (Exception e) {
-			logger.error("Task completed with error: " + e.getMessage());
+			logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()));
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 			return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 		}			

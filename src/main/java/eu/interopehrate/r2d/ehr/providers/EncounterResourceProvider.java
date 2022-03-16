@@ -19,7 +19,6 @@ import ca.uhn.fhir.rest.annotation.RequiredParam;
 import ca.uhn.fhir.rest.annotation.Search;
 import ca.uhn.fhir.rest.param.DateParam;
 import ca.uhn.fhir.rest.server.IResourceProvider;
-import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.r2d.ehr.security.SecurityConstants;
@@ -59,7 +58,7 @@ public class EncounterResourceProvider implements IResourceProvider {
 		// Retrieves EHRRequest from the HttpRequest
 		EHRRequest request = (EHRRequest)theRequest.getAttribute(SecurityConstants.EHR_REQUEST_ATTR_NAME);
 		request.setOperation(R2DOperation.ENCOUNTER_EVERYTHING);
-		request.addParameter(EHRRequest.PARAM_RESOURCE_ID, theEncounterId);
+		request.addParameter(EHRRequest.PARAM_RESOURCE_ID, theEncounterId.getIdPart());
 
 		// starts asynchronous request processing
 		requestController.startRequestProcessing(request);

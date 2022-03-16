@@ -27,8 +27,8 @@ public class RestIHSService implements IHSService {
 	public RestIHSService() {
 		// TODO: add proxy to configuration?
 		client = new OkHttpClient.Builder()
-			      .readTimeout(2, TimeUnit.MINUTES)
-			      .writeTimeout(2, TimeUnit.MINUTES)
+			      .readTimeout(5, TimeUnit.MINUTES)
+			      .writeTimeout(5, TimeUnit.MINUTES)
 			      .retryOnConnectionFailure(true)
 			      .build();
 	}
@@ -43,9 +43,11 @@ public class RestIHSService implements IHSService {
 		// #2 Customize the URL
 		if (ehrRequest.getOperation() == R2DOperation.SEARCH_ENCOUNTER)
 			serviceURL.append("Encounter");
-		else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING)
-			serviceURL.append("Encounter");
-		else
+		else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING) {
+			// TODO: analizzare il codice LOINC contenuto nel CDA ritornato
+			String resourceType = determineReportType(cdaBundle);
+			serviceURL.append(resourceType);
+		} else
 			throw new NotImplementedException("Operation " + ehrRequest.getOperation() +
 					" not implemented.");
 		
@@ -59,16 +61,16 @@ public class RestIHSService implements IHSService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Submitting request to IHS: %s", serviceURL.toString()));
+			logger.debug(String.format("Invoking service of IHS: %s", serviceURL.toString()));
 			httpResponse = client.newCall(postRequest).execute();
 		} catch (IOException ioe) {
-			logger.error(String.format("Error %s while sending POST request to IHS Server", ioe.getMessage()));
+			logger.error(String.format("Error '%s' while invoking service of IHS", ioe.getMessage()));
 			throw ioe;
 		}
 		
 		// #5 Checks the response
 		if (!httpResponse.isSuccessful()) {
-			String errMsg = String.format("Error %d while sending request to IHS Server: %s", 
+			String errMsg = String.format("Error %d while invoking service of IHS: %s", 
 	    			httpResponse.code(), httpResponse.message());
 
 			logger.error(errMsg);
@@ -94,7 +96,9 @@ public class RestIHSService implements IHSService {
 		if (ehrRequest.getOperation() == R2DOperation.SEARCH_ENCOUNTER) {
 			serviceURL.append("encounter");
 		} else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING) {
-			serviceURL.append("encounter/").append("id").append("everything");
+			serviceURL.append("encounter/");
+			serviceURL.append(ehrRequest.getParameter(EHRRequest.PARAM_RESOURCE_ID));
+			serviceURL.append("/everything");
 		} else {
 			throw new NotImplementedException("Operation " + ehrRequest.getOperation() +
 					" not implemented.");
@@ -109,10 +113,10 @@ public class RestIHSService implements IHSService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Submitting GET request to IHS: %s", serviceURL.toString()));
+			logger.debug(String.format("Invoking service of IHS: %s", serviceURL.toString()));
 			httpResponse = client.newCall(getRequest).execute();
 		} catch (IOException ioe) {
-			logger.error(String.format("Error %s while sending POST request to IHS Server", ioe.getMessage()));
+			logger.error(String.format("Error %s while invoking service of IHS", ioe.getMessage()));
 			throw ioe;
 		}
 		
@@ -122,13 +126,21 @@ public class RestIHSService implements IHSService {
 			ihsResponse.setResponse(httpResponse.body().string());
 			return ihsResponse;
 		} else {
-			String errMsg = String.format("Error %d while sending GET request to IHS Server: %s", 
+			String errMsg = String.format("Error %d while invoking service of IHS: %s", 
 	    			httpResponse.code(), httpResponse.message());
 
 			logger.error(errMsg);
 			throw new IOException(errMsg);				
 		}
 		
+	}
+	
+	
+	private String determineReportType(String cdaBundle) {
+		if (cdaBundle.contains("code=\"30954-2\""))
+			return "DiagnosticReport-LabResult";
+		
+		return null;
 	}
 
 }

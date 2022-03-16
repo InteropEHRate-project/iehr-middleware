@@ -27,7 +27,7 @@ public class EHRRequest {
 		this.citizen = theCitizen;
 		this.preferredLanguages = preferredLanguages;
 		
-		if (this.preferredLanguages != null) {
+		if (this.preferredLanguages != null && this.preferredLanguages.trim().length() > 0) {
 			List<LanguageRange> langs = Locale.LanguageRange.parse(preferredLanguages);
 			preferredLanguage = langs.get(0).getRange();
 			preferredLanguage = preferredLanguage.substring(0, preferredLanguage.indexOf("-"));

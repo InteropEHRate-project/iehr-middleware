@@ -12,6 +12,7 @@ import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.ContentType;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
+import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -25,8 +26,8 @@ public class RestEHRService implements EHRService {
 
 	public RestEHRService() {
 		client = new OkHttpClient.Builder()
-			      .readTimeout(2, TimeUnit.MINUTES)
-			      .writeTimeout(2, TimeUnit.MINUTES)
+			      .readTimeout(5, TimeUnit.MINUTES)
+			      .writeTimeout(5, TimeUnit.MINUTES)
 			      .retryOnConnectionFailure(true)
 			      .build();
 	}
@@ -55,10 +56,10 @@ public class RestEHRService implements EHRService {
 		// #4 execute POST
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Submitting request to EHR: %s", serviceURL.toString()));
+			logger.debug(String.format("Invoking service of EHR: %s", serviceURL.toString()));
 			httpResponse = client.newCall(postRequest).execute();
 		} catch (IOException ioe) {
-			logger.error(String.format("Error %s while sending POST request to EHR Server", ioe.getMessage()));
+			logger.error(String.format("Error '%s' while invoking service of EHR", ioe.getMessage()));
 			throw ioe;
 		}
 		
@@ -67,10 +68,10 @@ public class RestEHRService implements EHRService {
 			EHRResponse ehrResponse = new EHRResponse();
 			ehrResponse.setContentType(ContentType.TEXT);
 			ehrResponse.setResponse(httpResponse.body().string());
-			logger.info("Response retrieved from EHR: " + ehrResponse.getResponse());
+			logger.debug("Response retrieved from EHR: " + ehrResponse.getResponse());
 			return ehrResponse;
 		} else {
-			String errMsg = String.format("Error %d while sending request to EHR Server: %s", 
+			String errMsg = String.format("Error %d while invoking service of EHR: %s", 
 	    			httpResponse.code(), httpResponse.message());
 
 			logger.error(errMsg);
@@ -81,15 +82,18 @@ public class RestEHRService implements EHRService {
 	
 	@Override
 	public EHRResponse executeGetPatientSummary(String theRequestId, String ehrPatientId) throws Exception {
-		return null;
+		EHRResponse ehrResponse = new EHRResponse();
+		ehrResponse.setContentType(ContentType.TEXT);
+		ehrResponse.setStatus(EHRResponseStatus.FAILED);
+		ehrResponse.setMessage("The Patient Summary is not available.");
+		
+		return ehrResponse;
 	}
 
 	
 	@Override
 	public EHRResponse executeSearchEncounter(Date theFromDate, String theRequestId, 
-			String ehrPatientId) throws Exception {
-		logger.debug(String.format("Executing Encounter.search..."));
-		
+			String ehrPatientId) throws Exception {		
 		// #1 builds service URL
 		StringBuilder serviceURL = new StringBuilder();
 		serviceURL.append(Configuration.getProperty(Configuration.EHR_ENDPOINT));
@@ -105,10 +109,9 @@ public class RestEHRService implements EHRService {
 	@Override
 	public EHRResponse executeEncounterEverything(String theEncounterId, String theRequestId, 
 			String ehrPatientId) throws Exception {
-		logger.debug(String.format("Executing Encounter/%s/$everything", theEncounterId));
-
 		// builds callback URL
-		StringBuilder serviceURL = new StringBuilder(Configuration.getR2DServicesContextPath());
+		// #1 builds service URL
+		StringBuilder serviceURL = new StringBuilder();
 		serviceURL.append(Configuration.getProperty(Configuration.EHR_ENDPOINT));
 		serviceURL.append("/Encounter/everything?citizenId=").append(ehrPatientId);
 		serviceURL.append("&encounterId=").append(theEncounterId);
@@ -127,10 +130,10 @@ public class RestEHRService implements EHRService {
 		// #3 execute GET
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Submitting request to EHR: %s", URL.toString()));
+			logger.debug(String.format("Invoking service of EHR: %s", URL.toString()));
 			httpResponse = client.newCall(getRequest).execute();
 		} catch (IOException ioe) {
-			logger.error(String.format("Error %s while sending GET request to EHR Server", ioe.getMessage()));
+			logger.error(String.format("Error %s while invoking service of EHR", ioe.getMessage()));
 			throw ioe;
 		}
 		
@@ -141,7 +144,7 @@ public class RestEHRService implements EHRService {
 			ehrResponse.setResponse(httpResponse.body().string());
 			return ehrResponse;
 		} else {
-			String errMsg = String.format("Error %d while sending request to EHR Server: %s", 
+			String errMsg = String.format("Error %d while invoking service of EHR: %s", 
 	    			httpResponse.code(), httpResponse.message());
 
 			logger.error(errMsg);

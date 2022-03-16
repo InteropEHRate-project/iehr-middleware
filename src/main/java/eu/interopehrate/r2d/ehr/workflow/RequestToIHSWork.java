@@ -24,7 +24,7 @@ class RequestToIHSWork implements Work {
 	@Override
 	public WorkReport execute(WorkContext workContext) {
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
-		logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
+		// logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 		
 		// #1 submit first request to the IHS Service for requesting a conversion
 		try {
@@ -40,16 +40,16 @@ class RequestToIHSWork implements Work {
 		try {
 			EHRResponse ihsResponse = ihsService.retrieveConversionResult(request);
 			if (ihsResponse.getStatus() == EHRResponseStatus.COMPLETED) {
-				logger.info("Task completed succesfully!");
+				// logger.info("Task completed succesfully!");
 				workContext.put(EHRRequestProcessor.FHIR_DATA_KEY, ihsResponse.getResponse());
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);
 			} else {
-				logger.error("Task completed with error: " + ihsResponse.getMessage());
+				logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,ihsResponse.getMessage()));
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, ihsResponse.getMessage());
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);				
 			}
 		} catch (Exception e) {
-			logger.error("Task completed with error: " + e.getMessage());
+			logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()));
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 			return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 		}
