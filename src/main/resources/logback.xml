@@ -1,9 +1,6 @@
 <configuration scan="false" scanPeriod="30 seconds">
 	
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
-		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-			<level>DEBUG</level>
-		</filter>
 		<encoder>
 			<pattern>EHR-MW: %d{yyyy-MM-dd HH:mm:ss.S} %-1level [%file:%line]: %msg%n</pattern>
 		</encoder>

@@ -31,7 +31,7 @@ class RequestToIHSWork implements Work {
 			String cdaBundle = (String) workContext.get(EHRRequestProcessor.CDA_DATA_KEY);
 			ihsService.requestConversion(request, cdaBundle);
 		} catch (Exception e) {
-			logger.error("Task completed with error: " + e.getMessage());
+			logger.error("Task completed with error: " + e.getMessage(), e);
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 			return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 		}
@@ -49,7 +49,7 @@ class RequestToIHSWork implements Work {
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);				
 			}
 		} catch (Exception e) {
-			logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()));
+			logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()), e);
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 			return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 		}

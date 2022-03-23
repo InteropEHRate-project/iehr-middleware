@@ -1,6 +1,9 @@
 package eu.interopehrate.r2d.ehr.services;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.NotImplementedException;
@@ -25,12 +28,23 @@ public class RestIHSService implements IHSService {
 	private final Log logger = LogFactory.getLog(RestIHSService.class);
 	
 	public RestIHSService() {
-		// TODO: add proxy to configuration?
+		// Checks for proxy settings
+		Proxy proxy = Proxy.NO_PROXY;
+		String proxyEndpoint = Configuration.getProperty("ihs.proxy.endpoint");
+		String proxyPort = Configuration.getProperty("ihs.proxy.port");
+		
+		if (proxyEndpoint != null && proxyEndpoint.trim().length() > 0) {
+			proxy = new Proxy(Type.HTTP, new InetSocketAddress(proxyEndpoint, Integer.valueOf(proxyPort)));
+		}
+				
+		// Creates the client
+		Integer timeOutInMinutes = Integer.valueOf(Configuration.getProperty("ihs.timeoutInMinutes"));
 		client = new OkHttpClient.Builder()
-			      .readTimeout(5, TimeUnit.MINUTES)
-			      .writeTimeout(5, TimeUnit.MINUTES)
+			      .readTimeout(timeOutInMinutes, TimeUnit.MINUTES)
+			      .writeTimeout(timeOutInMinutes, TimeUnit.MINUTES)
 			      .retryOnConnectionFailure(true)
-			      .build();
+			      .proxy(proxy)
+			      .build();		
 	}
 
 	@Override

@@ -66,7 +66,7 @@ class RequestToEHRWork implements Work {
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);				
 			}		
 		} catch (Exception e) {
-			logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()));
+			logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()), e);
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 			return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 		}			

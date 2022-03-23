@@ -136,4 +136,69 @@
 	<build>
 		<finalName>r2d-ehr-middleware</finalName>
 	</build>
+	
+		<profiles>
+		<profile>
+			<id>test</id>
+            <build>
+                <finalName>ehr-test</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                            	<id>1</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                    	<!-- application.properties file -->
+                                        <!-- delete file="${project.build.outputDirectory}/application.properties"/>
+                                        <copy file="src/main/resources/application.test.properties"
+                                              tofile="${project.build.outputDirectory}/application.properties"/>
+                                        <delete file="${project.build.outputDirectory}/application.test.properties"/ -->
+
+                                    	<!-- logback.xml file -->
+                                        <delete file="${project.build.outputDirectory}/logback.xml"/>
+                                        <copy file="src/main/resources/logback.test.xml"
+                                              tofile="${project.build.outputDirectory}/logback.xml"/>
+                                        <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                       
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <executions>
+                            <execution>
+                                <phase>compile</phase>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-war-plugin</artifactId>
+                        <version>3.3.2</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+		</profile>
+	</profiles>
+	
 </project>

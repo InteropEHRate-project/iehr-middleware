@@ -1,0 +1,31 @@
+<configuration scan="false" scanPeriod="30 seconds">
+
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+	    <file>/opt/tomcat/logs/ehrmw.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>ehrmw-%d{yyyy-MM-dd}.log</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<totalSizeCap>3GB</totalSizeCap>
+		</rollingPolicy>
+    
+        <append>true</append>
+		<encoder>
+			<pattern>%d{yyyy-MM-dd HH:mm:ss.S} %-5level [%file:%line]: %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+
+	<logger name="eu.interopehrate" level="INFO" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+
+	<logger name="eu.interopehrate.sr2dsm" level="INFO" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+
+	<root level="INFO">
+		<appender-ref ref="FILE" />
+	</root>
+
+</configuration>
