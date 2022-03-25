@@ -25,6 +25,8 @@ public class RestEHRService implements EHRService {
 	private final OkHttpClient client;
 	private static final Log logger = LogFactory.getLog(RestEHRService.class);
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("YYYY-MM-dd");
+	private final static String PATIENT_ID_PLACEHOLDER = "$patientId$";
+	private final static String ENCOUNTER_ID_PLACEHOLDER = "$encounterId$";
 
 	public RestEHRService() {
 		// Checks for proxy settings
@@ -112,7 +114,7 @@ public class RestEHRService implements EHRService {
 		// #1 builds service URL
 		String servicePath = Configuration.getProperty(GET_PATIENT_SUMMARY_SERVICE_NAME + ".PATH");
 		// #2 placeholders replacement
-		servicePath = servicePath.replace("$citizenId$", ehrPatientId);
+		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
 		URL serviceURL = createServiceURL(GET_PATIENT_SUMMARY_SERVICE_NAME, servicePath);
 		
 		// #3 invokes service
@@ -127,7 +129,7 @@ public class RestEHRService implements EHRService {
 		// #1 builds service URL
 		String servicePath = Configuration.getProperty(SEARCH_ENCOUNTER_SERVICE_NAME + ".PATH");
 		// #2 placeholders replacement
-		servicePath = servicePath.replace("$citizenId$", ehrPatientId);
+		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
 		if (theFromDate != null) {
 			servicePath = servicePath + String.format("&from=%s", dateFormatter.format(theFromDate));	
 		}
@@ -144,8 +146,8 @@ public class RestEHRService implements EHRService {
 		// #1 builds service URL
 		String servicePath = Configuration.getProperty(GET_ENCOUNTER_SERVICE_NAME + ".PATH");
 		// #2 placeholders replacement
-		servicePath = servicePath.replace("$citizenId$", ehrPatientId);
-		servicePath = servicePath.replace("$encounterId$", theEncounterId);
+		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
+		servicePath = servicePath.replace(ENCOUNTER_ID_PLACEHOLDER, theEncounterId);
 		URL serviceURL = createServiceURL(GET_PATIENT_SERVICE_NAME, servicePath);
 		
 		return executeGET(serviceURL.toString());

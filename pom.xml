@@ -157,10 +157,10 @@
                                 <configuration>
                                     <target>
                                     	<!-- application.properties file -->
-                                        <!-- delete file="${project.build.outputDirectory}/application.properties"/>
+                                        <delete file="${project.build.outputDirectory}/application.properties"/>
                                         <copy file="src/main/resources/application.test.properties"
                                               tofile="${project.build.outputDirectory}/application.properties"/>
-                                        <delete file="${project.build.outputDirectory}/application.test.properties"/ -->
+                                        <delete file="${project.build.outputDirectory}/application.test.properties"/>
 
                                     	<!-- logback.xml file -->
                                         <delete file="${project.build.outputDirectory}/logback.xml"/>
