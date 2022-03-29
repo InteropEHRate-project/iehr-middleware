@@ -1,8 +1,15 @@
 <configuration scan="false" scanPeriod="30 seconds">
 
+    <!-- CONSOLE Appender -->
+	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>EHR-MW: %d{yyyy-MM-dd HH:mm:ss.S} %-1level [%file:%line]: %msg%n</pattern>
+		</encoder>
+	</appender>
+
     <!-- FILE Appender -->
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-	    <file>/opt/tomcat/logs/ehrmw.log</file>
+	    <file>/usr/local/tomcat/logs/ehrmw.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<fileNamePattern>ehrmw-%d{yyyy-MM-dd}.log</fileNamePattern>
 			<maxHistory>30</maxHistory>
@@ -18,6 +25,7 @@
     <!-- Logger for eu.interopehrate -->
 	<logger name="eu.interopehrate" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <!-- Logger for eu.interopehrate.sr2dsm -->

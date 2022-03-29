@@ -27,11 +27,11 @@
 	-->	
 	<servlet>
 		<servlet-name>R2DEHRServer</servlet-name>
-		<servlet-class>eu.interopehrate.r2d.ehr.R2DEHRServer</servlet-class>
+		<servlet-class>eu.interopehrate.r2d.ehr.EHRMWServer</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>R2DEHRServer</servlet-name>
+		<servlet-name>EHRMWServer</servlet-name>
 		<url-pattern>/r2da/*</url-pattern>
 	</servlet-mapping>	
 

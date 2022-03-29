@@ -22,22 +22,22 @@ import eu.interopehrate.r2d.ehr.providers.EncounterResourceProvider;
 import eu.interopehrate.r2d.ehr.providers.PatientResourceProvider;
 import eu.interopehrate.r2d.ehr.security.R2DRequestValidator;
 
-public class R2DEHRServer extends RestfulServer {
+public class EHRMWServer extends RestfulServer {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7367855477396438198L;
-	private static final Logger logger = LoggerFactory.getLogger(R2DEHRServer.class);
+	private static final Logger logger = LoggerFactory.getLogger(EHRMWServer.class);
 
-	public R2DEHRServer() {
+	public EHRMWServer() {
 		super(FhirContext.forR4());
 	}
 
 	
 	@Override
 	protected void initialize() throws ServletException {
-		logger.debug("Initializing R2DEHRServer...");
+		logger.debug("Initializing EHR-MW Server...");
 		/*
 		 * Two resource providers are defined. Each one handles a specific
 		 * type of resource.
