@@ -75,7 +75,8 @@ public class RestIHSService implements IHSService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Invoking service of IHS: %s", serviceURL.toString()));
+			if (logger.isDebugEnabled())
+				logger.debug(String.format("Invoking service of IHS: %s", serviceURL.toString()));
 			httpResponse = client.newCall(postRequest).execute();
 		} catch (IOException ioe) {
 			logger.error(String.format("Error '%s' while invoking service of IHS", ioe.getMessage()));
@@ -127,7 +128,8 @@ public class RestIHSService implements IHSService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Invoking service of IHS: %s", serviceURL.toString()));
+			if (logger.isDebugEnabled())
+				logger.debug(String.format("Invoking service of IHS: %s", serviceURL.toString()));
 			httpResponse = client.newCall(getRequest).execute();
 		} catch (IOException ioe) {
 			logger.error(String.format("Error %s while invoking service of IHS", ioe.getMessage()));

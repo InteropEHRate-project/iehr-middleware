@@ -37,7 +37,8 @@ public class EHRMWServer extends RestfulServer {
 	
 	@Override
 	protected void initialize() throws ServletException {
-		logger.debug("Initializing EHR-MW Server...");
+		if (logger.isDebugEnabled())
+			logger.debug("Initializing EHR-MW Server...");
 		/*
 		 * Two resource providers are defined. Each one handles a specific
 		 * type of resource.

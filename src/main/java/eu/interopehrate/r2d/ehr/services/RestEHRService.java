@@ -191,7 +191,8 @@ public class RestEHRService implements EHRService {
 		// #3 execute GET
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Invoking service of EHR: %s", URL.toString()));
+			if (logger.isDebugEnabled())
+				logger.debug(String.format("Invoking service of EHR: %s", URL.toString()));
 			httpResponse = client.newCall(getRequest).execute();
 		} catch (IOException ioe) {
 			logger.error(String.format("Error %s while invoking service of EHR", ioe.getMessage()));

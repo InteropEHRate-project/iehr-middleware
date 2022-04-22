@@ -52,7 +52,8 @@ public class RestR2DAccessService implements R2DAccessService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Invoking R2D Server callback: %s", serviceURL.toString()));
+			if (logger.isDebugEnabled())
+				logger.debug(String.format("Invoking R2D Server callback: %s", serviceURL.toString()));
 			httpResponse = client.newCall(request).execute();
 			// #5 Checks the response
 			if (!httpResponse.isSuccessful()) {
@@ -91,7 +92,8 @@ public class RestR2DAccessService implements R2DAccessService {
 		// #4 Submits the request
 		Response httpResponse = null;
 		try {
-			logger.debug(String.format("Invoking R2D Server callback: %s", serviceURL.toString()));
+			if (logger.isDebugEnabled())
+				logger.debug(String.format("Invoking R2D Server callback: %s", serviceURL.toString()));
 			httpResponse = client.newCall(request).execute();
 			// #5 Checks the response
 			if (!httpResponse.isSuccessful()) {
