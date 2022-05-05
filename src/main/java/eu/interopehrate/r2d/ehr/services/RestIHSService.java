@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.text.StringTokenizer;
 
 import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.ContentType;
@@ -54,13 +55,12 @@ public class RestIHSService implements IHSService {
 		StringBuilder serviceURL = new StringBuilder(ihsBase);
 		serviceURL.append("/requestConversion?resourceName=");
 
-		// #2 Customize the URL
-		if (ehrRequest.getOperation() == R2DOperation.SEARCH_ENCOUNTER)
+		// #2 Customize the URL depending on the type of operation requested
+		if (ehrRequest.getOperation() == R2DOperation.SEARCH_ENCOUNTER) {
 			serviceURL.append("Encounter");
-		else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING) {
-			// TODO: analizzare il codice LOINC contenuto nel CDA ritornato
-			String resourceType = determineReportType(cdaBundle);
-			serviceURL.append(resourceType);
+		} else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING) {
+			String paramString = buildParamString(cdaBundle);
+			serviceURL.append(paramString);
 		} else
 			throw new NotImplementedException("Operation " + ehrRequest.getOperation() +
 					" not implemented.");
@@ -96,24 +96,23 @@ public class RestIHSService implements IHSService {
 	
 	@Override
 	public EHRResponse retrieveConversionResult(EHRRequest ehrRequest) throws Exception {
-		// #1 Creates the URL for sendong the request to IHS
+		// #1 Creates the base URL for sending the request to IHS
 		String ihsBase = Configuration.getProperty(Configuration.IHS_ENDPOINT);
 		StringBuilder serviceURL = new StringBuilder(ihsBase);
 		serviceURL.append("/retrieveFHIRHealthRecord?");
-		// handles 'lang' parameter
+		// #2 starts adding URL parameters
+		
+		// #2.1 handles 'lang' parameter
 		if (ehrRequest.getPreferredLanguage() != null) 
 			serviceURL.append("lang=").append(ehrRequest.getPreferredLanguage()).append("&");
 		
-		// handles 'call' parameter
+		// #2.2 handles 'call' parameter
 		serviceURL.append("call=");
-
-		// #2 customize the URL
 		if (ehrRequest.getOperation() == R2DOperation.SEARCH_ENCOUNTER) {
 			serviceURL.append("encounter");
 		} else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING) {
-			serviceURL.append("encounter/");
-			serviceURL.append(ehrRequest.getParameter(EHRRequest.PARAM_RESOURCE_ID));
-			serviceURL.append("/everything");
+			serviceURL.append(String.format("encounter/%s/everything", 
+					ehrRequest.getParameter(EHRRequest.PARAM_RESOURCE_ID)));
 		} else {
 			throw new NotImplementedException("Operation " + ehrRequest.getOperation() +
 					" not implemented.");
@@ -152,11 +151,19 @@ public class RestIHSService implements IHSService {
 	}
 	
 	
-	private String determineReportType(String cdaBundle) {
-		if (cdaBundle.contains("code=\"30954-2\""))
-			return "DiagnosticReport-LabResult";
+	private String buildParamString(String cdaBundle) {
+		StringTokenizer codes = new StringTokenizer(Configuration.getProperty("ihs.mapping.codes"), ";");
+		StringBuffer parameters = new StringBuffer();		
+		String code;
 		
-		return null;
+		while (codes.hasNext()) {
+			code = codes.next();
+			if (cdaBundle.contains(code)) {
+				parameters.append(Configuration.getProperty("ihs.mapping.code." + code));
+			}
+		}
+		
+		return parameters.toString();
 	}
 
 }
