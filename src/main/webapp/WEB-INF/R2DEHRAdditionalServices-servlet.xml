@@ -23,7 +23,6 @@
 	<!-- bean for workflow engine -->
 	<bean name="requestController" class="eu.interopehrate.r2d.ehr.workflow.EHRRequestController" scope="singleton" />
 	
-	
 	<bean name="AuthorizeCitizenToEHR" class="eu.interopehrate.r2d.ehr.workflow.AuthorizeCitizenToEHR" scope="prototype" />
 	<bean name="RequestToEHRWork" class="eu.interopehrate.r2d.ehr.workflow.RequestToEHRWork" scope="prototype" />
 	<bean name="RequestToIHSWork" class="eu.interopehrate.r2d.ehr.workflow.RequestToIHSWork" scope="prototype" />

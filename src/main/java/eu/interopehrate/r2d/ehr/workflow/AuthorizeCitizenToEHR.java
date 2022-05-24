@@ -1,7 +1,7 @@
 package eu.interopehrate.r2d.ehr.workflow;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jeasy.flows.work.DefaultWorkReport;
 import org.jeasy.flows.work.Work;
 import org.jeasy.flows.work.WorkContext;
@@ -17,7 +17,7 @@ import eu.interopehrate.r2d.ehr.services.EHRService;
 class AuthorizeCitizenToEHR implements Work {
 	@Autowired(required = true)
 	private EHRService ehrService;
-	private final Log logger = LogFactory.getLog(AuthorizeCitizenToEHR.class);
+	private final Logger logger = LoggerFactory.getLogger(AuthorizeCitizenToEHR.class);
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {

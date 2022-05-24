@@ -24,7 +24,7 @@ public class R2DRequestValidator {
 				
 	@Hook(value = Pointcut.SERVER_INCOMING_REQUEST_PRE_HANDLED)
 	public void doFilter(RequestDetails theRequestDetails) throws IOException {
-		LOGGER.info(String.format("Received the following R2D request: %s", theRequestDetails.getCompleteUrl()));
+		// LOGGER.info(String.format("Received the following R2D request: %s", theRequestDetails.getCompleteUrl()));
 		// Checks mandatory header parameters		
 		// #1 checks for R2DRequest id
 		Optional<String> reqIdOpt = Optional.fromNullable(theRequestDetails.getHeader(SecurityConstants.R2D_REQUEST_ID_PARAM_NAME));
@@ -43,12 +43,12 @@ public class R2DRequestValidator {
 		// #3 validates the EIDAS token
 		Citizen theCitizen = null;
 		try {
-			LOGGER.debug("Verifying EIDAS token...");
+			// LOGGER.debug("Verifying EIDAS token...");
 			String oAuthToken = authTokenOpt.get().substring(SecurityConstants.OAUTH_PREFIX.length()).trim();
 			ResponseDetails tokenDetails = SR2DSM.decode(oAuthToken);
 			theCitizen = buildCitizen(tokenDetails);
 			theRequestDetails.setAttribute(SecurityConstants.CITIZEN_ATTR_NAME, theCitizen);
-		    LOGGER.info("Request is valid and regards citizen " + theCitizen.getPersonIdentifier());
+		    LOGGER.info("Received request {} for citizen {}", reqIdOpt.get(), theCitizen.getPersonIdentifier());
 		} catch (Exception e) {
 			LOGGER.error("Authentication token is not valid! Request cannot be processed.", e);
 			throw new AuthenticationException("Authentication token is not valid! Request cannot be processed.");		

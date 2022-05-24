@@ -3,7 +3,8 @@ package eu.interopehrate.r2d.ehr.model;
 public class EHRResponse {
 	
 	private ContentType contentType;
-	private EHRResponseStatus status;
+	private EHRResponseStatus status = EHRResponseStatus.COMPLETED;
+	private boolean onFile = false;
 	private String response = "";
 	private String message = "";
 	
@@ -33,6 +34,14 @@ public class EHRResponse {
 		this.contentType = contentType;
 		this.status = status;
 		this.message = message;
+	}
+	
+	public boolean isOnFile() {
+		return onFile;
+	}
+
+	public void setOnFile(boolean onFile) {
+		this.onFile = onFile;
 	}
 
 	public String getMessage() {

@@ -1,7 +1,7 @@
 package eu.interopehrate.r2d.ehr.workflow;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jeasy.flows.work.DefaultWorkReport;
 import org.jeasy.flows.work.Work;
 import org.jeasy.flows.work.WorkContext;
@@ -17,7 +17,7 @@ public class SendFailureToR2DWork implements Work {
 	@Autowired(required = true)
 	private R2DAccessService r2dAccessService;
 	
-	private final Log logger = LogFactory.getLog(RequestToIHSWork.class);
+	private final Logger logger = LoggerFactory.getLogger(RequestToIHSWork.class);
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {

@@ -53,7 +53,7 @@ public class AuthenticatorFilter implements Filter {
 		String authHeaderParam = o.get();		
 		if (authHeaderParam.startsWith(SecurityConstants.BASIC_PREFIX)) {
 			// If basic authorization, only the EHR_SERVICE is authorized
-			LOGGER.debug("Verifying Basic Auth...");
+			// LOGGER.debug("Verifying Basic Auth...");
 			String base64Credentials = authHeaderParam.substring(SecurityConstants.BASIC_PREFIX.length()).trim();
 			final byte[] decodedBytes  = Base64.getDecoder().decode(base64Credentials.getBytes());
 		    final String credentials = new String(decodedBytes);
@@ -63,7 +63,7 @@ public class AuthenticatorFilter implements Filter {
 				hRes.sendError(HttpStatus.SC_UNAUTHORIZED, "The provided credentials are not valid! The request cannot be processed.");			
 				return;
 		    } 
-			LOGGER.info(String.format("Request %s authenticated to R2D Server.", hReq.getRequestURL()));
+			// LOGGER.info(String.format("Request %s authenticated to R2D Server.", hReq.getRequestURL()));
 		} else {
 			LOGGER.error("Authorization header is not used properly! The request cannot be processed.");
 			hRes.sendError(HttpStatus.SC_UNAUTHORIZED, "Authorization header is not used properly! The request cannot be processed.");

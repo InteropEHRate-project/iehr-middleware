@@ -108,19 +108,26 @@
 			<version>2.10.3</version>
 		</dependency>		
 
-		<dependency>
+		<!--  dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.13</version>
-		</dependency>
+		</dependency -->
 		
 		<!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-client-okhttp -->
-		<dependency>
+		<!--  dependency>
 		    <groupId>ca.uhn.hapi.fhir</groupId>
 		    <artifactId>hapi-fhir-client-okhttp</artifactId>
 		    <version>5.6.2</version>
-		</dependency>
+		</dependency -->
 		
+		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
+		<dependency>
+		    <groupId>com.squareup.okhttp3</groupId>
+		    <artifactId>okhttp</artifactId>
+		    <version>4.9.3</version>
+		</dependency>
+
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt</artifactId>
@@ -139,11 +146,17 @@
 	      </exclusions> 
 		</dependency>        
 
-		<!-- https://mvnrepository.com/artifact/org.jeasy/easy-flows -->
+		<!-- workflow management -->
 		<dependency>
 		    <groupId>org.jeasy</groupId>
 		    <artifactId>easy-flows</artifactId>
 		    <version>0.3</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>commons-io</groupId>
+		    <artifactId>commons-io</artifactId>
+		    <version>2.7</version>
 		</dependency>
 
 	</dependencies>
@@ -182,9 +195,9 @@
 	<profiles>
 	
 		<profile>
-			<id>docker</id>
+			<id>ftgm</id>
             <build>
-                <finalName>ehr-docker</finalName>
+                <finalName>ehr-ftgm</finalName>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
@@ -201,17 +214,17 @@
                                     <target>
                                     	<!-- application.properties file -->
                                         <delete file="${project.build.outputDirectory}/application.properties"/>
-                                        <copy file="src/main/resources/application.docker.properties"
+                                        <copy file="src/main/resources/application.ftgm.properties"
                                               tofile="${project.build.outputDirectory}/application.properties"/>
                                         <delete file="${project.build.outputDirectory}/application.test.properties"/>
-                                        <delete file="${project.build.outputDirectory}/application.docker.properties"/>
+                                        <delete file="${project.build.outputDirectory}/application.ftgm.properties"/>
 
                                     	<!-- logback.xml file -->
                                         <delete file="${project.build.outputDirectory}/logback.xml"/>
-                                        <copy file="src/main/resources/logback.docker.xml"
+                                        <copy file="src/main/resources/logback.ftgm.xml"
                                               tofile="${project.build.outputDirectory}/logback.xml"/>
                                         <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                       
-                                        <delete file="${project.build.outputDirectory}/logback.docker.xml"/>                                       
+                                        <delete file="${project.build.outputDirectory}/logback.ftgm.xml"/>                                       
                                     </target>
                                 </configuration>
                             </execution>
@@ -245,14 +258,14 @@
                                         <copy file="src/main/resources/application.test.properties"
                                               tofile="${project.build.outputDirectory}/application.properties"/>
                                         <delete file="${project.build.outputDirectory}/application.test.properties"/>
-                                        <delete file="${project.build.outputDirectory}/application.docker.properties"/>
+                                        <delete file="${project.build.outputDirectory}/application.ftgm.properties"/>
 
                                     	<!-- logback.xml file -->
                                         <delete file="${project.build.outputDirectory}/logback.xml"/>
                                         <copy file="src/main/resources/logback.test.xml"
                                               tofile="${project.build.outputDirectory}/logback.xml"/>
                                         <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                       
-                                        <delete file="${project.build.outputDirectory}/logback.docker.xml"/>                                       
+                                        <delete file="${project.build.outputDirectory}/logback.ftgm.xml"/>                                       
                                     </target>
                                 </configuration>
                             </execution>

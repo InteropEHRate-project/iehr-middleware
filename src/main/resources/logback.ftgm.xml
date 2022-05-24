@@ -25,7 +25,6 @@
     <!-- Logger for eu.interopehrate -->
 	<logger name="eu.interopehrate" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
-        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <!-- Logger for eu.interopehrate.sr2dsm -->

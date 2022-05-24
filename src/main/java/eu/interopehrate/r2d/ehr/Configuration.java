@@ -31,4 +31,11 @@ public final class Configuration {
 		return config.getProperty(R2DA_ENDPOINT) + "/" + config.getProperty(R2DA_SERVICES_CONTEXT);
 	}
 	
+	public static String getDBPath() {
+		return Configuration.getProperty("ehrmw.storage.path");
+	}
+	
+	public static String getR2DADBPath() {
+		return Configuration.getProperty("r2da.storage.path");
+	}
 }

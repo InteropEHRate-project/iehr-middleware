@@ -6,19 +6,22 @@ import eu.interopehrate.r2d.ehr.model.EHRResponse;
 public interface IHSService {
 
 	/**
+	 * Invokes the service of EHR to invoke the conversion of a bundle
 	 * 
 	 * @param ehrRequest
 	 * @param cdaBundle
 	 * @throws Exception
 	 */
-	void requestConversion(EHRRequest ehrRequest, String cdaBundle) throws Exception;
+	void requestConversion(EHRRequest ehrRequest, EHRResponse ehrResponse) throws Exception;
 	
 	/**
+	 * Involkes the service of EHR to get the result of a previously invoked conversion
 	 * 
 	 * @param ehrRequest
 	 * @param lang
 	 * @return
 	 * @throws Exception
 	 */
-	EHRResponse retrieveConversionResult(EHRRequest ehrRequest) throws Exception;
+	EHRResponse retrieveFHIRHealthRecord(EHRRequest ehrRequest) throws Exception;
+	
 }

@@ -1,7 +1,7 @@
 package eu.interopehrate.r2d.ehr.workflow;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.jeasy.flows.work.DefaultWorkReport;
 import org.jeasy.flows.work.Work;
 import org.jeasy.flows.work.WorkContext;
@@ -19,17 +19,16 @@ class RequestToIHSWork implements Work {
 	@Autowired(required = true)
 	private IHSService ihsService;
 	
-	private final Log logger = LogFactory.getLog(RequestToIHSWork.class);
+	private final Logger logger = LoggerFactory.getLogger(RequestToIHSWork.class);
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
-		// logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
-		
 		// #1 submit first request to the IHS Service for requesting a conversion
 		try {
-			String cdaBundle = (String) workContext.get(EHRRequestProcessor.CDA_DATA_KEY);
-			ihsService.requestConversion(request, cdaBundle);
+			// TODO: 
+			EHRResponse ehrResponse = (EHRResponse)workContext.get(EHRRequestProcessor.CDA_DATA_KEY);
+			ihsService.requestConversion(request, ehrResponse);			
 		} catch (Exception e) {
 			logger.error("Task completed with error: " + e.getMessage(), e);
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
@@ -38,10 +37,9 @@ class RequestToIHSWork implements Work {
 		
 		// #2 sends a second request to the IHS Service for retrieving the results
 		try {
-			EHRResponse ihsResponse = ihsService.retrieveConversionResult(request);
+			EHRResponse ihsResponse = ihsService.retrieveFHIRHealthRecord(request);
 			if (ihsResponse.getStatus() == EHRResponseStatus.COMPLETED) {
-				// logger.info("Task completed succesfully!");
-				workContext.put(EHRRequestProcessor.FHIR_DATA_KEY, ihsResponse.getResponse());
+				workContext.put(EHRRequestProcessor.FHIR_DATA_KEY, ihsResponse);
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);
 			} else {
 				logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,ihsResponse.getMessage()));

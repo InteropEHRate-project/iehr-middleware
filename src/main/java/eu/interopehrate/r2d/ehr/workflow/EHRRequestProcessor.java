@@ -1,7 +1,10 @@
 package eu.interopehrate.r2d.ehr.workflow;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.jeasy.flows.engine.WorkFlowEngine;
 import org.jeasy.flows.engine.WorkFlowEngineBuilder;
 import org.jeasy.flows.work.Work;
@@ -9,11 +12,15 @@ import org.jeasy.flows.work.WorkContext;
 import org.jeasy.flows.work.WorkReportPredicate;
 import org.jeasy.flows.workflow.ConditionalFlow;
 import org.jeasy.flows.workflow.WorkFlow;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.EHRContextProvider;
+import eu.interopehrate.r2d.ehr.MemoryLogger;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 
-public class EHRRequestProcessor implements Runnable {
+public class EHRRequestProcessor /* implements Runnable */ {
 
 	static final String PATIENT_ID_KEY = "PATIENT_ID_KEY";
 	static final String EHR_REQUEST_KEY = "EHR_REQUEST_KEY";
@@ -21,7 +28,7 @@ public class EHRRequestProcessor implements Runnable {
 	static final String FHIR_DATA_KEY = "FHIR_DATA_KEY";
 	static final String ERROR_MESSAGE_KEY = "ERROR_MESSAGE_KEY";
 	
-	private final Log logger = LogFactory.getLog(EHRRequestProcessor.class);	
+	private final Logger logger = LoggerFactory.getLogger(EHRRequestProcessor.class);	
 	private EHRRequest ehrRequest;
 	
 	public EHRRequestProcessor(EHRRequest ehrRequest) {
@@ -29,7 +36,7 @@ public class EHRRequestProcessor implements Runnable {
 		this.ehrRequest = ehrRequest;
 	}
 
-	@Override
+	
 	public void run() {
 		Work authorizeCitizenToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("AuthorizeCitizenToEHR");
 		Work requestToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("RequestToEHRWork");
@@ -38,7 +45,7 @@ public class EHRRequestProcessor implements Runnable {
 		Work SendSuccessToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendSuccessToR2DWork");
 			
 		// Builds the workflow
-		WorkFlow secondaryWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
+		WorkFlow ihsWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
 				.named("R2DRequest To IHS workflow")
 				.execute(requestToIHS)
 				.when(WorkReportPredicate.COMPLETED)
@@ -46,19 +53,19 @@ public class EHRRequestProcessor implements Runnable {
 				.otherwise(SendFailureToR2D)
 				.build();
 
-		WorkFlow primaryWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
+		WorkFlow ehrWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
 				.named("R2DRequest To EHR workflow")
 				.execute(requestToEHR)
 				.when(WorkReportPredicate.COMPLETED)
-				.then(secondaryWorkflow)
+				.then(ihsWorkflow)
 				.otherwise(SendFailureToR2D)
 				.build();
 		
-		WorkFlow preliminaryWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
+		WorkFlow mainWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
 				.named("R2DRequest management workflow")
 				.execute(authorizeCitizenToEHR)
 				.when(WorkReportPredicate.COMPLETED)
-				.then(primaryWorkflow)
+				.then(ehrWorkFlow)
 				.otherwise(SendFailureToR2D)
 				.build();
 
@@ -71,15 +78,32 @@ public class EHRRequestProcessor implements Runnable {
 		
 		// starts the workflow
 		logger.info(String.format("Starting processing of request: %s", ehrRequest.getR2dRequestId()));
-		workFlowEngine.run(preliminaryWorkflow, workContext);
+		MemoryLogger.logMemory();
+		workFlowEngine.run(mainWorkflow, workContext);
 		
+		// delete tmp file
+		Boolean deleteTmpFile = Boolean.valueOf(Configuration.getProperty("ehr.deleteTmpFiles"));
+		if (deleteTmpFile) {
+			String ehrFileName = String.format("%s%s.%s", Configuration.getDBPath(), 
+					ehrRequest.getR2dRequestId(),
+					Configuration.getProperty("ehr.fileExtension"));
+			Path filePath = Paths.get(ehrFileName);
+			try {
+				Files.deleteIfExists(filePath);
+			} catch (IOException e) {
+				logger.warn("Error while deleting file {}", ehrFileName);
+			}
+		}
+		
+		// final log message
 		String errorMsg = (String) workContext.get(ERROR_MESSAGE_KEY);
 		if (errorMsg != null) 
-			logger.error(String.format("Processing of request: %s completed with ERROR: %s",
-					ehrRequest.getR2dRequestId(), errorMsg));
+			logger.error("Processing of request: {} completed with ERROR: {}", ehrRequest.getR2dRequestId(), errorMsg);
 		else
-			logger.info(String.format("Processing of request: %s completed with SUCCESS",
-					ehrRequest.getR2dRequestId()));
+			logger.info("Processing of request: {} completed with SUCCESS", ehrRequest.getR2dRequestId());
+		
+		// prints memory
+		MemoryLogger.logMemory();
 	}
 
 }
