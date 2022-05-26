@@ -108,19 +108,12 @@
 			<version>2.10.3</version>
 		</dependency>		
 
-		<!--  dependency>
+		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
 			<version>4.5.13</version>
-		</dependency -->
-		
-		<!-- https://mvnrepository.com/artifact/ca.uhn.hapi.fhir/hapi-fhir-client-okhttp -->
-		<!--  dependency>
-		    <groupId>ca.uhn.hapi.fhir</groupId>
-		    <artifactId>hapi-fhir-client-okhttp</artifactId>
-		    <version>5.6.2</version>
-		</dependency -->
-		
+		</dependency>
+				
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
 		<dependency>
 		    <groupId>com.squareup.okhttp3</groupId>

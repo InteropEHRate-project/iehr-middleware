@@ -4,9 +4,9 @@
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 	    <file>/opt/tomcat/logs/ehrmw.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>ehrmw-%d{yyyy-MM-dd}.log</fileNamePattern>
-			<maxHistory>30</maxHistory>
-			<totalSizeCap>3GB</totalSizeCap>
+			<fileNamePattern>/opt/tomcat/logs/ehrmw.%d.log</fileNamePattern>
+			<maxHistory>15</maxHistory>
+			<totalSizeCap>500MB</totalSizeCap>
 		</rollingPolicy>
     
         <append>true</append>

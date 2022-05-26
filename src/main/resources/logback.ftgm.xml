@@ -11,9 +11,9 @@
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
 	    <file>/usr/local/tomcat/logs/ehrmw.log</file>
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-			<fileNamePattern>ehrmw-%d{yyyy-MM-dd}.log</fileNamePattern>
-			<maxHistory>30</maxHistory>
-			<totalSizeCap>3GB</totalSizeCap>
+			<fileNamePattern>/usr/local/tomcat/logs/ehrmw.%d.log</fileNamePattern>
+			<maxHistory>15</maxHistory>
+			<totalSizeCap>500MB</totalSizeCap>
 		</rollingPolicy>
     
         <append>true</append>
@@ -25,6 +25,7 @@
     <!-- Logger for eu.interopehrate -->
 	<logger name="eu.interopehrate" level="DEBUG" additivity="false">
         <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
 
     <!-- Logger for eu.interopehrate.sr2dsm -->

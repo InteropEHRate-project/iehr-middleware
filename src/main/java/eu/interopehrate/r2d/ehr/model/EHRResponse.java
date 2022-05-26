@@ -1,5 +1,7 @@
 package eu.interopehrate.r2d.ehr.model;
 
+import org.apache.http.entity.ContentType;
+
 public class EHRResponse {
 	
 	private ContentType contentType;

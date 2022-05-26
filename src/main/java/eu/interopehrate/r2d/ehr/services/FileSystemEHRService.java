@@ -6,8 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Date;
 
+import org.apache.http.entity.ContentType;
+
 import eu.interopehrate.r2d.ehr.model.Citizen;
-import eu.interopehrate.r2d.ehr.model.ContentType;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 
@@ -59,7 +60,7 @@ public class FileSystemEHRService implements EHRService {
 	private EHRResponse createResponse(String fileName) throws IOException {
 		InputStream result = getClass().getClassLoader().getResourceAsStream(fileName.toString());
 
-		EHRResponse response = new EHRResponse(ContentType.XML_CDA, EHRResponseStatus.COMPLETED);
+		EHRResponse response = new EHRResponse(ContentType.APPLICATION_XML, EHRResponseStatus.COMPLETED);
 		if (result == null) {
 			response.setMessage("No content found.");
 			response.setResponse("");

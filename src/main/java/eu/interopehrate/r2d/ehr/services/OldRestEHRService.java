@@ -1,41 +1,56 @@
 package eu.interopehrate.r2d.ehr.services;
 
-import java.io.ByteArrayOutputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.Proxy;
+import java.net.Proxy.Type;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
-public class RestEHRService implements EHRService {
-	private static final Logger logger = LoggerFactory.getLogger(RestEHRService.class);
+@Deprecated
+public class OldRestEHRService implements EHRService {
+	private final OkHttpClient client;
+	private static final Logger logger = LoggerFactory.getLogger(OldRestEHRService.class);
 	private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("YYYY-MM-dd");
 	private final static String PATIENT_ID_PLACEHOLDER = "$patientId$";
 	private final static String ENCOUNTER_ID_PLACEHOLDER = "$encounterId$";
 	
 	private String storagePath;
 	private String fileExtension;
-	@SuppressWarnings("unused")
 	private String ehrName;
-	
-	@Autowired
-	private HttpInvoker httpInvoker;
 
-	public RestEHRService() {		
+	public OldRestEHRService() {
+		// Checks for proxy settings
+		Proxy proxy = Proxy.NO_PROXY;
+		String proxyEndpoint = Configuration.getProperty("ehr.proxy.endpoint");
+		String proxyPort = Configuration.getProperty("ehr.proxy.port");
+		if (proxyEndpoint != null && proxyEndpoint.trim().length() > 0) {
+			proxy = new Proxy(Type.HTTP, new InetSocketAddress(proxyEndpoint, Integer.valueOf(proxyPort)));
+		}
+		
 		// Retrieves storage path from config file
 		storagePath = Configuration.getDBPath();
 		if (!storagePath.endsWith("/"))
@@ -48,6 +63,15 @@ public class RestEHRService implements EHRService {
 		
 		// Retrieves ehr name
 		ehrName = Configuration.getProperty("ehr.name");
+		
+		// Creates the client
+		Integer timeOutInMinutes = Integer.valueOf(Configuration.getProperty("ehr.timeoutInMinutes"));
+		client = new OkHttpClient.Builder()
+			      .readTimeout(timeOutInMinutes, TimeUnit.MINUTES)
+			      .writeTimeout(timeOutInMinutes, TimeUnit.MINUTES)
+			      .retryOnConnectionFailure(true)
+			      .proxy(proxy)
+			      .build();
 	}
 	
 	
@@ -59,47 +83,12 @@ public class RestEHRService implements EHRService {
 		servicePath = servicePath.replace("$firstName$", theCitizen.getFirstName());
 		servicePath = servicePath.replace("$familyName$", theCitizen.getFamilyName());
 		servicePath = servicePath.replace("$dateOfBirth$", theCitizen.getDateOfBirth());
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
+		URL serviceURL = createServiceURL(GET_PATIENT_SERVICE_NAME, servicePath);
 		
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		int retCode = httpInvoker.executeGet(serviceURI, out, new HeaderParam[0]);
-		
-		EHRResponse ehrResponse = new EHRResponse();
-		ehrResponse.setContentType(ContentType.TEXT_PLAIN);
-		if (retCode == HttpStatus.SC_OK) {
-			String patientId = out.toString();
-			if (patientId != null && patientId.trim().length() > 0) {
-				ehrResponse.setResponse(patientId);
-					
-				return ehrResponse;	
-			} else {
-				ehrResponse.setStatus(EHRResponseStatus.FAILED);
-				String msg = String.format("Empty Body: no patient found in the EHR for citizen: firstName:%s, "
-						+ "familyName: %s, dateOfBirth: %s", theCitizen.getFirstName(), 
-						theCitizen.getFamilyName(), theCitizen.getDateOfBirth());
-				logger.error(msg);
-				ehrResponse.setMessage(msg);				
-			}		} else if (retCode == HttpStatus.SC_NOT_FOUND) {
-			ehrResponse.setStatus(EHRResponseStatus.FAILED);
-			String msg = String.format("404 NOT FOUND: no patient found in the EHR for citizen: firstName:%s, "
-					+ "familyName: %s, dateOfBirth: %s", theCitizen.getFirstName(), 
-					theCitizen.getFamilyName(), theCitizen.getDateOfBirth());
-			logger.error(msg);
-			ehrResponse.setMessage(msg);			
-		} else {
-			String errMsg = String.format("Error %d while invoking service %s of EHR!", 
-					retCode, serviceURI.toString());
-
-			logger.error(errMsg);
-			throw new IOException(errMsg);			
-		}
-		
-		
-		/*
 		// #3 invokes service
 		Response response = executeBasicGET(serviceURL.toString());
 		EHRResponse ehrResponse = new EHRResponse();
-		ehrResponse.setContentType(ContentType.TEXT);
+		ehrResponse.setContentType(ContentType.TEXT_PLAIN);
 		
 		//
 		// checks for status code and return value
@@ -133,7 +122,6 @@ public class RestEHRService implements EHRService {
 		}
 		
 		response.close();
-		*/
 		
 		return ehrResponse;
 	}
@@ -148,10 +136,10 @@ public class RestEHRService implements EHRService {
 		
 		// #2 placeholders replacement
 		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
-		URI serviceURI = createServiceURI(GET_PATIENT_SUMMARY_SERVICE_NAME, servicePath);
+		URL serviceURL = createServiceURL(GET_PATIENT_SUMMARY_SERVICE_NAME, servicePath);
 		
 		// #3 invokes service
-		return executeGET(serviceURI, theRequestId);
+		return executeGET(serviceURL.toString(), theRequestId);
 	}
 
 	
@@ -168,10 +156,10 @@ public class RestEHRService implements EHRService {
 		if (theFromDate != null) {
 			servicePath = servicePath + String.format("&from=%s", dateFormatter.format(theFromDate));	
 		}
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
+		URL serviceURL = createServiceURL(GET_PATIENT_SERVICE_NAME, servicePath);
 		
 		// #3 invokes service
-		return executeGET(serviceURI, theRequestId);
+		return executeGET(serviceURL.toString(), theRequestId);
 	}
 	
 
@@ -186,9 +174,9 @@ public class RestEHRService implements EHRService {
 		// #2 placeholders replacement
 		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
 		servicePath = servicePath.replace(ENCOUNTER_ID_PLACEHOLDER, theEncounterId);
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
+		URL serviceURL = createServiceURL(GET_PATIENT_SERVICE_NAME, servicePath);
 		
-		return executeGET(serviceURI, theRequestId);
+		return executeGET(serviceURL.toString(), theRequestId);
 	}
 	
 	/**
@@ -199,10 +187,8 @@ public class RestEHRService implements EHRService {
 	 * @return
 	 * @throws NumberFormatException
 	 * @throws MalformedURLException
-	 * @throws URISyntaxException 
 	 */
-	private URI createServiceURI(String serviceName, String servicePath) throws NumberFormatException, 
-															MalformedURLException, URISyntaxException {
+	private URL createServiceURL(String serviceName, String servicePath) throws NumberFormatException, MalformedURLException {
 		String ehrProtocol = Configuration.getProperty("ehr.protocol");
 		String ehrHost = Configuration.getProperty("ehr.host");
 		String ehrPort = Configuration.getProperty("ehr.port");
@@ -211,8 +197,7 @@ public class RestEHRService implements EHRService {
 		if (servicePort != null && servicePort.trim().length() > 0)
 			ehrPort = servicePort;
 		
-		URL url = new URL(ehrProtocol, ehrHost, new Integer(ehrPort), servicePath);
-		return url.toURI();
+		return new URL(ehrProtocol, ehrHost, new Integer(ehrPort), servicePath);
 	}
 
 	
@@ -222,6 +207,7 @@ public class RestEHRService implements EHRService {
 	 * @param URL
 	 * @return
 	 * @throws Exception
+	 */
 	private Response executeBasicGET(String URL) throws Exception {
 		// #2 If successful another call is needed to get the results
 		Request getRequest = new Request.Builder()
@@ -239,7 +225,6 @@ public class RestEHRService implements EHRService {
 			throw ioe;
 		}	
 	}
-	 */
 	
 	
 	/**
@@ -249,34 +234,11 @@ public class RestEHRService implements EHRService {
 	 * @return
 	 * @throws Exception
 	 */
-	private EHRResponse executeGET(URI uri, String theRequestId) throws Exception {
-		// #1 creates output file
-		final File out = new File(storagePath + theRequestId + fileExtension);
-		// #2 executes the GET
-		int retCode = httpInvoker.executeGet(uri, out, new HeaderParam[0]);
-		final EHRResponse ehrResponse = new EHRResponse();
-		if (retCode == HttpStatus.SC_OK) {
-			ContentType mime = ContentType.parse(Configuration.getProperty("ehr.mime"));
-			ehrResponse.setContentType(mime);
-			ehrResponse.setOnFile(true);
-			ehrResponse.setResponse(theRequestId + fileExtension);
-			ehrResponse.setStatus(EHRResponseStatus.COMPLETED);
-		} else if (retCode == HttpStatus.SC_NOT_FOUND){
-			logger.warn("The current request received a 404-NOT FOUND from EHR!");
-			ehrResponse.setMessage("No data found on EHR.");
-			ehrResponse.setStatus(EHRResponseStatus.FAILED);
-		} else {
-			String errorMsg = String.format("The current request received the following error code from EHR: %d", retCode);
-			logger.error(errorMsg);
-			ehrResponse.setMessage(errorMsg);
-			ehrResponse.setStatus(EHRResponseStatus.FAILED);
-		}
-		
-		return ehrResponse;
-		
-		
-		
-		/*
+	private EHRResponse executeGET(String URL, String theRequestId) throws Exception {
+		// #2 If successful another call is needed to get the results
+		if (logger.isDebugEnabled())
+			logger.debug("Invoking service of {}-EHR: {}", ehrName, URL.toString());
+
 		Request getRequest = new Request.Builder()
                 .url(URL.toString())
                 .get()
@@ -295,7 +257,7 @@ public class RestEHRService implements EHRService {
 				
 				// create response 
 				final EHRResponse ehrResponse = new EHRResponse();
-				ContentType mime = ContentType.getContentType(Configuration.getProperty("ehr.mime"));
+				ContentType mime = ContentType.parse(Configuration.getProperty("ehr.mime"));
 				ehrResponse.setContentType(mime);
 				ehrResponse.setOnFile(true);
 				ehrResponse.setResponse(theRequestId + fileExtension);
@@ -322,7 +284,6 @@ public class RestEHRService implements EHRService {
 			logger.error(String.format("Error %s while invoking service of EHR", ioe.getMessage()));
 			throw ioe;
 		}
-		*/
 		
 	}
 	
