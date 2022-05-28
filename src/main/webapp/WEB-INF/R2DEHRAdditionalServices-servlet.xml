@@ -16,8 +16,8 @@
 	<context:component-scan base-package="eu.interopehrate.r2d.ehr" />
 	
 	<!--  bean that acts as proxy server for external systems -->
-	<bean name="ehrService" class="eu.interopehrate.r2d.ehr.services.ApacheRestEHRService" scope="prototype" />	
-	<bean name="ihsService" class="eu.interopehrate.r2d.ehr.services.ApacheRestIHSService" scope="prototype" />	
+	<bean name="ehrService" class="eu.interopehrate.r2d.ehr.services.RestEHRService" scope="prototype" />	
+	<bean name="ihsService" class="eu.interopehrate.r2d.ehr.services.RestIHSService" scope="prototype" />	
 	<bean name="r2dAccessService" class="eu.interopehrate.r2d.ehr.services.RestR2DAccessService" scope="prototype" />	
 	
 	<bean name="httpInvoker" class="eu.interopehrate.r2d.ehr.services.ApacheHttpInvoker" scope="prototype" />

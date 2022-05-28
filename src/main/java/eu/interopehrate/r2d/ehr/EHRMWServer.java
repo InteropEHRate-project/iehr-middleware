@@ -37,7 +37,7 @@ public class EHRMWServer extends RestfulServer {
 	@Override
 	protected void initialize() throws ServletException {
 		if (logger.isDebugEnabled())
-			logger.debug("Starting EHR-MW Server version: {} ", Configuration.getProperty("ehrmw.version"));
+			logger.debug("Starting EHR-MW Server version: {} ", Configuration.getVersion());
 		
 		/*
 		 *  Creates folder for storing files produced during request processing
@@ -100,6 +100,17 @@ public class EHRMWServer extends RestfulServer {
 		
 	}
 
+	protected String createPoweredByHeaderComponentName() {
+		return "";
+	}
 
+	protected String createPoweredByHeaderProductName() {
+		return "EHR Middleware";
+	}
+
+	
+	protected String createPoweredByHeaderProductVersion() {
+		return Configuration.getVersion();
+	}
 
 }

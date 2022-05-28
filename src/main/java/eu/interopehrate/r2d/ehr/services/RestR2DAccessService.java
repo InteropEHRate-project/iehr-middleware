@@ -46,7 +46,7 @@ public class RestR2DAccessService implements R2DAccessService {
 		final byte[] encodedBytes = Base64.getEncoder().encode(credentials.getBytes());
 
 		httpInvoker.executePost(new URI(serviceURL.toString()), 
-				"", 
+				errorMsg, 
 				ContentType.APPLICATION_JSON.toString(), 
 				new HeaderParam(SecurityConstants.AUTH_HEADER, 
 						SecurityConstants.BASIC_PREFIX + new String(encodedBytes)));

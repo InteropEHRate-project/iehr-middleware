@@ -35,9 +35,9 @@ public class ApacheHttpInvoker implements HttpInvoker {
 	@Override
 	public int executeGet(URI uri, OutputStream output, HeaderParam... headerParams) throws IOException {
 		if (logger.isDebugEnabled())
-			logger.debug("Invoking service: {}", uri.toString());
+			logger.debug("Invoking GET service: {}", uri.toString());
 
-		try (CloseableHttpClient httpclient = HttpClients.createSystem()) {
+		try (CloseableHttpClient httpclient = createClient()) {
 			// Creates and config GET request
 			HttpGet httpGet = new HttpGet(uri);
 			httpGet.setConfig(createRequestConfig());
@@ -70,9 +70,9 @@ public class ApacheHttpInvoker implements HttpInvoker {
 	@Override
 	public int executeGet(URI uri, File output, HeaderParam... headerParams) throws IOException {		
 		if (logger.isDebugEnabled())
-			logger.debug("Invoking service: {}", uri.toString());
+			logger.debug("Invoking GET service: {}", uri.toString());
 
-		try (CloseableHttpClient httpclient = HttpClients.createSystem()) {
+		try (CloseableHttpClient httpclient = createClient()) {
 			// Creates and config GET request
 			HttpGet httpGet = new HttpGet(uri);
 			httpGet.setConfig(createRequestConfig());
@@ -115,9 +115,9 @@ public class ApacheHttpInvoker implements HttpInvoker {
 	@Override
 	public int executePost(URI uri, File body, String contentType, HeaderParam... headerParams) throws IOException {
 		if (logger.isDebugEnabled())
-			logger.debug("Invoking service: {}", uri.toString());
+			logger.debug("Invoking POST service: {}", uri.toString());
 
-		try (CloseableHttpClient httpclient = HttpClients.createSystem()) {
+		try (CloseableHttpClient httpclient = createClient()) {
 			// Creates and config GET request
 			HttpPost httpPost = new HttpPost(uri);
 			httpPost.setConfig(createRequestConfig());
@@ -147,9 +147,9 @@ public class ApacheHttpInvoker implements HttpInvoker {
 	@Override
 	public int executePost(URI uri, String body, String contentType, HeaderParam... headerParams) throws IOException {
 		if (logger.isDebugEnabled())
-			logger.debug("Invoking service: {}", uri.toString());
+			logger.debug("Invoking POST service: {}", uri.toString());
 
-		try (CloseableHttpClient httpclient = HttpClients.createSystem()) {
+		try (CloseableHttpClient httpclient = createClient()) {
 			// Creates and config GET request
 			HttpPost httpPost = new HttpPost(uri);
 			httpPost.setConfig(createRequestConfig());
@@ -175,13 +175,32 @@ public class ApacheHttpInvoker implements HttpInvoker {
 		}
 	}
 	
+	private CloseableHttpClient createClient() {
+		return HttpClients.custom()
+		.disableAutomaticRetries()
+		.evictExpiredConnections()
+		.build();
+//		return HttpClients.createSystem();
+	}
 	
 	private RequestConfig createRequestConfig() {
 		// Creates configured Get request
 		final Builder configBuilder = RequestConfig.custom();
 		// configures timeout
-		configBuilder.setSocketTimeout(
-				Integer.valueOf(Configuration.getProperty("ihs.timeoutInMinutes")) * 60000);
+		int timeout = Integer.valueOf(Configuration.getProperty("ihs.timeoutInMinutes")) * 60000;
+		configBuilder
+			.setSocketTimeout(timeout)
+			.setConnectTimeout(timeout)
+			.setConnectionRequestTimeout(timeout);
+		
+		configBuilder
+			.setCircularRedirectsAllowed(true)
+			.setRedirectsEnabled(true)
+			.setExpectContinueEnabled(true);
+
+		// if (System.getProperty("") != null) {
+		// }
+		// configBuilder.setProxy(null);
 		
 		return configBuilder.build();
 	}

@@ -7,7 +7,6 @@ public final class Configuration {
 
 	public static final String EHR_MW_CREDENTIALS = "ehrmw.credentials";
 	public static final String R2DA_ENDPOINT = "r2da.endpoint";
-	public static final String R2DA_R2D_CONTEXT = "r2da.r2d.context";
 	public static final String R2DA_SERVICES_CONTEXT = "r2da.services.context";
 	public static final String IHS_ENDPOINT = "ihs.endpoint";
 	public static final String EHR_ENDPOINT = "ehr.endpoint";
@@ -38,4 +37,9 @@ public final class Configuration {
 	public static String getR2DADBPath() {
 		return Configuration.getProperty("r2da.storage.path");
 	}
+	
+	public static String getVersion() {
+		return Configuration.getProperty("ehrmw.version");
+	}
+
 }
