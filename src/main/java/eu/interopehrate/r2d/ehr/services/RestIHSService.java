@@ -115,90 +115,18 @@ public class RestIHSService implements IHSService {
 				ihsResponse.setOnFile(true);
 				ihsResponse.setResponse(ehrRequest.getR2dRequestId() + FILE_EXT);
 				ihsResponse.setStatus(EHRResponseStatus.COMPLETED);
-				return ihsResponse;
 			} else {
 				ihsResponse.setStatus(EHRResponseStatus.FAILED);
 				ihsResponse.setMessage(String.format("Error %d while retrieving results from IHS service", returnCode));
 				logger.error(ihsResponse.getMessage());			
 			} 
+			return ihsResponse;
 		} catch (IOException ioe) {
 			logger.error("Error '{}' while invoking requestConversion of IHS", ioe.getMessage());
 			throw ioe;			
 		}
-		
-		return null;
 	}
 	
-	
-	/*
-	public EHRResponse oldRetrieveFHIRHealthRecord(EHRRequest ehrRequest) throws Exception {
-		// #1 Creates the base URL for sending the request to IHS
-		String ihsBase = Configuration.getProperty(Configuration.IHS_ENDPOINT);
-		StringBuilder serviceURL = new StringBuilder(ihsBase);
-		serviceURL.append("/retrieveFHIRHealthRecord?");
-		// #2 starts adding URL parameters
-		
-		// #2.1 handles 'lang' parameter
-		if (ehrRequest.getPreferredLanguage() != null) 
-			serviceURL.append("lang=").append(ehrRequest.getPreferredLanguage()).append("&");
-		
-		// #2.2 handles 'call' parameter
-		serviceURL.append("call=");
-		if (ehrRequest.getOperation() == R2DOperation.SEARCH_ENCOUNTER) {
-			serviceURL.append("encounter");
-		} else if (ehrRequest.getOperation() == R2DOperation.ENCOUNTER_EVERYTHING) {
-			serviceURL.append(String.format("encounter/%s/everything", 
-					ehrRequest.getParameter(EHRRequest.PARAM_RESOURCE_ID)));
-		} else {
-			throw new NotImplementedException("Operation " + ehrRequest.getOperation() +
-					" not implemented.");
-		}
-		
-		// #3 If successful another call is needed to get the results
-		if (logger.isDebugEnabled())
-			logger.debug(String.format("Invoking service of IHS: %s", serviceURL.toString()));
-
-		// Creates the GET request
-		HttpGet httpGet = new HttpGet(serviceURL.toString());
-		httpGet.addHeader("Accept", eu.interopehrate.r2d.ehr.model.ContentType.JSON.getContentType());
-		
-		try (CloseableHttpClient httpclient = HttpClients.createDefault();
-				CloseableHttpResponse response = httpclient.execute(httpGet);) {
-			// Creates the HttpClient
-			// TODO: improve
-			if (response.getStatusLine().getStatusCode() != 200) {
-				String errMsg = String.format("Error %d while invoking service of IHS", 
-						response.getStatusLine().getStatusCode());
-
-				logger.error(errMsg);
-				throw new IOException(errMsg);
-			} else {
-				// Copy results to file
-				final File out = new File(Configuration.getR2DADBPath() + ehrRequest.getR2dRequestId() + FILE_EXT);
-				try (InputStream inStream = response.getEntity().getContent();
-					 OutputStream outStream = new BufferedOutputStream(new FileOutputStream(out));) {
-					IOUtils.copy(inStream, outStream);				
-				}
-				
-				// create response 
-				final EHRResponse ihsResponse = new EHRResponse(eu.interopehrate.r2d.ehr.model.ContentType.JSON);
-				ihsResponse.setOnFile(true);
-				ihsResponse.setResponse(ehrRequest.getR2dRequestId() + FILE_EXT);
-				ihsResponse.setStatus(EHRResponseStatus.COMPLETED);
-				logger.debug("Saved to file '{}' {} Kb received from IHS", 
-						ihsResponse.getResponse(),
-						NumberFormat.getInstance().format(out.length() / 1024D));
-				return ihsResponse;
-			}
-		} catch (Exception ioe) {
-			if (ioe.getCause() != null && ioe.getCause() instanceof NoHttpResponseException)
-				logger.warn("Socket hangup during execution of service requestConversion of IHS");
-			else
-				logger.error("Error '{}' while invoking requestConversion of IHS", ioe.getMessage());
-				throw ioe;
-		}
-	}
-	 */
 	
 	/*
 	 * Builds the param string needed when invoking the service for converting results. 

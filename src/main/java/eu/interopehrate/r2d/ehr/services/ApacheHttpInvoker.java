@@ -193,10 +193,12 @@ public class ApacheHttpInvoker implements HttpInvoker {
 			.setConnectTimeout(timeout)
 			.setConnectionRequestTimeout(timeout);
 		
+		/*
 		configBuilder
 			.setCircularRedirectsAllowed(true)
 			.setRedirectsEnabled(true)
 			.setExpectContinueEnabled(true);
+		*/
 
 		// if (System.getProperty("") != null) {
 		// }

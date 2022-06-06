@@ -26,6 +26,8 @@ import eu.interopehrate.r2d.ehr.workflow.EHRRequestController;
 
 public class EHRMWServer extends RestfulServer {
 
+	public static FhirContext FHIR_CONTEXT;
+
 	private static final long serialVersionUID = 7367855477396438198L;
 	private static final Logger logger = LoggerFactory.getLogger(EHRMWServer.class);
 
@@ -38,7 +40,9 @@ public class EHRMWServer extends RestfulServer {
 	protected void initialize() throws ServletException {
 		if (logger.isDebugEnabled())
 			logger.debug("Starting EHR-MW Server version: {} ", Configuration.getVersion());
-		
+
+		FHIR_CONTEXT = getFhirContext();
+
 		/*
 		 *  Creates folder for storing files produced during request processing
 		 */

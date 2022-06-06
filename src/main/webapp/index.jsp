@@ -1,1 +1,0 @@
-EHRMiddleware is up and running - InteropEHRate project (www.interopehrate.eu)

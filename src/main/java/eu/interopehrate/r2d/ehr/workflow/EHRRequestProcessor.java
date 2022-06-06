@@ -40,21 +40,32 @@ public class EHRRequestProcessor /* implements Runnable */ {
 	public void run() {
 		Work authorizeCitizenToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("AuthorizeCitizenToEHR");
 		Work requestToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("RequestToEHRWork");
-		Work requestToIHS = (Work)EHRContextProvider.getApplicationContext().getBean("RequestToIHSWork");
+		Work requestConversion = (Work)EHRContextProvider.getApplicationContext().getBean("RequestConversionWork");
 		Work SendFailureToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendFailureToR2DWork");
 		Work SendSuccessToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendSuccessToR2DWork");
-			
+		
+		
 		// Builds the workflow
+		/*
+		WorkFlow localConversion = ConditionalFlow.Builder.aNewConditionalFlow()
+				.named("Convert data to FHIR")
+				.execute(requestConversion)
+				.when(WorkReportPredicate.ALWAYS_TRUE)
+				.then(SendSuccessToR2D)
+				.otherwise(SendFailureToR2D)
+				.build();
+		*/
+		
 		WorkFlow ihsWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("R2DRequest To IHS workflow")
-				.execute(requestToIHS)
+				.named("Convert data with IHS workflow")
+				.execute(requestConversion)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(SendSuccessToR2D)
 				.otherwise(SendFailureToR2D)
 				.build();
 
 		WorkFlow ehrWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("R2DRequest To EHR workflow")
+				.named("Request To EHR workflow")
 				.execute(requestToEHR)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(ihsWorkflow)
@@ -62,7 +73,7 @@ public class EHRRequestProcessor /* implements Runnable */ {
 				.build();
 		
 		WorkFlow mainWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("R2DRequest management workflow")
+				.named("R2DRequest Management workflow")
 				.execute(authorizeCitizenToEHR)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(ehrWorkFlow)
@@ -79,21 +90,8 @@ public class EHRRequestProcessor /* implements Runnable */ {
 		// starts the workflow
 		logger.info(String.format("Starting processing of request: %s", ehrRequest.getR2dRequestId()));
 		MemoryLogger.logMemory();
+
 		workFlowEngine.run(mainWorkflow, workContext);
-		
-		// delete tmp file
-		Boolean deleteTmpFile = Boolean.valueOf(Configuration.getProperty("ehr.deleteTmpFiles"));
-		if (deleteTmpFile) {
-			String ehrFileName = String.format("%s%s.%s", Configuration.getDBPath(), 
-					ehrRequest.getR2dRequestId(),
-					Configuration.getProperty("ehr.fileExtension"));
-			Path filePath = Paths.get(ehrFileName);
-			try {
-				Files.deleteIfExists(filePath);
-			} catch (IOException e) {
-				logger.warn("Error while deleting file {}", ehrFileName);
-			}
-		}
 		
 		// final log message
 		String errorMsg = (String) workContext.get(ERROR_MESSAGE_KEY);
@@ -102,8 +100,26 @@ public class EHRRequestProcessor /* implements Runnable */ {
 		else
 			logger.info("Processing of request: {} completed with SUCCESS", ehrRequest.getR2dRequestId());
 		
+		// delete tmp file
+		Boolean deleteTempFiles = Boolean.valueOf(Configuration.getProperty("ehr.deleteTmpFiles"));
+		if (deleteTempFiles)
+			deleteTempFiles();
+
 		// prints memory
 		MemoryLogger.logMemory();
+	}
+	
+	
+	private void deleteTempFiles() {
+		String ehrFileName = String.format("%s%s.%s", Configuration.getDBPath(), 
+				ehrRequest.getR2dRequestId(),
+				Configuration.getProperty("ehr.fileExtension"));
+		Path filePath = Paths.get(ehrFileName);
+		try {
+			Files.deleteIfExists(filePath);
+		} catch (IOException e) {
+			logger.warn("Error while deleting file {}", ehrFileName);
+		}
 	}
 
 }

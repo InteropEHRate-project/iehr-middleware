@@ -14,6 +14,7 @@ import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import eu.interopehrate.r2d.ehr.services.IHSService;
 
+@Deprecated
 class RequestToIHSWork implements Work {
 
 	@Autowired(required = true)
@@ -26,7 +27,6 @@ class RequestToIHSWork implements Work {
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
 		// #1 submit first request to the IHS Service for requesting a conversion
 		try {
-			// TODO: 
 			EHRResponse ehrResponse = (EHRResponse)workContext.get(EHRRequestProcessor.CDA_DATA_KEY);
 			ihsService.requestConversion(request, ehrResponse);			
 		} catch (Exception e) {

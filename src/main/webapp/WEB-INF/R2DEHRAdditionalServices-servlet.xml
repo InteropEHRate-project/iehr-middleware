@@ -15,19 +15,23 @@
 
 	<context:component-scan base-package="eu.interopehrate.r2d.ehr" />
 	
-	<!--  bean that acts as proxy server for external systems -->
+	<!--  bean that acts as proxy server for internal or external service -->
 	<bean name="ehrService" class="eu.interopehrate.r2d.ehr.services.RestEHRService" scope="prototype" />	
 	<bean name="ihsService" class="eu.interopehrate.r2d.ehr.services.RestIHSService" scope="prototype" />	
 	<bean name="r2dAccessService" class="eu.interopehrate.r2d.ehr.services.RestR2DAccessService" scope="prototype" />	
+	<bean name="localConversionService" class="eu.interopehrate.r2d.ehr.services.LocalConversionService" scope="prototype" />	
+
+	<!-- Bean for local conversion -->
+	<bean name="cdaEncounterListConverter" class="eu.interopehrate.r2d.ehr.converter.cda.CDAEncounterListConverter" scope="prototype" />	
 	
+	<!-- Bean providing concrete HTTP transport layer -->
 	<bean name="httpInvoker" class="eu.interopehrate.r2d.ehr.services.ApacheHttpInvoker" scope="prototype" />
 	
-	<!-- bean for workflow engine -->
+	<!-- bean for workflow execution -->
 	<bean name="requestController" class="eu.interopehrate.r2d.ehr.workflow.EHRRequestController" scope="singleton" />
-	
 	<bean name="AuthorizeCitizenToEHR" class="eu.interopehrate.r2d.ehr.workflow.AuthorizeCitizenToEHR" scope="prototype" />
 	<bean name="RequestToEHRWork" class="eu.interopehrate.r2d.ehr.workflow.RequestToEHRWork" scope="prototype" />
-	<bean name="RequestToIHSWork" class="eu.interopehrate.r2d.ehr.workflow.RequestToIHSWork" scope="prototype" />
+	<bean name="RequestConversionWork" class="eu.interopehrate.r2d.ehr.workflow.RequestConversionWork" scope="prototype" />
 	<bean name="SendFailureToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendFailureToR2DWork" scope="prototype" />
 	<bean name="SendSuccessToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendSuccessToR2DWork" scope="prototype" />
 		
