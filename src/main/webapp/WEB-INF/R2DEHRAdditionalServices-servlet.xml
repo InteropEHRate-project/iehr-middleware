@@ -23,6 +23,7 @@
 
 	<!-- Bean for local conversion -->
 	<bean name="cdaEncounterListConverter" class="eu.interopehrate.r2d.ehr.converter.cda.CDAEncounterListConverter" scope="prototype" />	
+	<bean name="cdaEncounterEverythingConverter" class="eu.interopehrate.r2d.ehr.converter.cda.CDAEncounterEverythingConverter" scope="prototype" />	
 	
 	<!-- Bean providing concrete HTTP transport layer -->
 	<bean name="httpInvoker" class="eu.interopehrate.r2d.ehr.services.ApacheHttpInvoker" scope="prototype" />

@@ -6,7 +6,7 @@ public class Tester {
 
 	public static void main(String[] args) {
 		
-		CDAMedicalVisitConverter converter = new CDAMedicalVisitConverter();
+		CDAEncounterEverythingConverter converter = new CDAEncounterEverythingConverter();
 		
 		try {
 			converter.convertToFile(new File("Patient_TEN_EncEnv_6601652.xml"), new File("alessio.json"));

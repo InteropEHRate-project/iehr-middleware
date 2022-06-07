@@ -38,7 +38,7 @@ class AuthorizeCitizenToEHR implements Work {
 				workContext.put(EHRRequestProcessor.PATIENT_ID_KEY, response.getResponse());
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);				
 			}		
-		} catch (Exception e) {
+		} catch (Exception | Error e) {
 			logger.error("Task completed with error: " + e.getMessage(), e);
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 			return new DefaultWorkReport(WorkStatus.FAILED, workContext);

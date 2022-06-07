@@ -2,11 +2,14 @@ package eu.interopehrate.r2d.ehr.converter.cda;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
 
 import org.hl7.fhir.r4.model.Attachment;
 import org.hl7.fhir.r4.model.Base64BinaryType;
 import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
+import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.DateTimeType;
 import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.DiagnosticReport.DiagnosticReportStatus;
@@ -160,7 +163,7 @@ public class CDAConversionUtility {
 		Coding coding = new Coding(toCodingSystemURL(codeSystem), code, label);
 		obs.setCode(new CodeableConcept(coding));
 		
-		obs.setId("obs_" + code.replace("-", "_") + "_" + effectiveTime.substring(0, 14));
+		obs.setId("obs_" + code.replace("-", "_") + "_" + randomString());
 		
 		// value
 		Node valueNode = getChildByName(obsNode, "value");
@@ -205,7 +208,7 @@ public class CDAConversionUtility {
 		Coding coding = new Coding(toCodingSystemURL(codeSystem), code, label);
 		obs.setCode(new CodeableConcept(coding));
 		
-		obs.setId("obs_" + code.replace("-", "_") + "_" + effectiveTime.substring(0, 14));
+		obs.setId("obs_" + code.replace("-", "_") + "_" + randomString());
 		
 		// value
 		Node valueNode = getChildByName(vSignNode, "value");
@@ -245,7 +248,7 @@ public class CDAConversionUtility {
 		Coding coding = new Coding(toCodingSystemURL(codeSystem), code, label);
 		obs.setCode(new CodeableConcept(coding));
 		
-		obs.setId("obs_" + code.replace("-", "_") + "_" + effectiveTime.substring(0, 14));
+		obs.setId("obs_" + code.replace("-", "_") + "_" + randomString());
 		
 		// value
 		Node valueNode = getChildByName(obsNode, "value");
@@ -311,7 +314,7 @@ public class CDAConversionUtility {
 		Media media = new Media();
         Node codeNode = getChildByName(mediaNode, "code");
         String code = ((Element)codeNode).getAttribute("code");
-        media.setId("media_" + code.replace("-", "_") + "_" + System.currentTimeMillis());
+        media.setId("media_" + code.replace("-", "_") + "_" + randomString());
 		
 		// profile
         Meta meta = new Meta();
@@ -353,6 +356,31 @@ public class CDAConversionUtility {
 	}
 	
 	
+	public static Condition toCondition(Node obsNode, Patient subject, 
+			Practitioner practitioner, Date onsetDate) {
+		Condition c = new Condition();
+		// profile
+        Meta meta = new Meta();
+        meta.addProfile("http://interopehrate.eu/fhir/StructureDefinition/Condition-IEHR");
+        c.setMeta(meta);
+        c.setSubject(new Reference(subject));
+        // code
+        Node codeNode = getChildByName(obsNode, "code");
+		String code = ((Element)codeNode).getAttribute("code");
+		String codeSystem = ((Element)codeNode).getAttribute("codeSystem");
+		String label = ((Element)codeNode).getAttribute("displayName");
+		Coding coding = new Coding(toCodingSystemURL(codeSystem), code, label);
+		c.setCode(new CodeableConcept(coding));
+		// id
+		c.setId("cond_" + code.replace("-", "_") + "_" + randomString());
+		// onset date
+		
+		c.setOnset(new DateTimeType(onsetDate));
+        
+		return c;
+	}
+	
+	
 	private static String toCodingSystemURL(String codeSystemCode) {
 		if ("2.16.840.1.113883.6.2".equals(codeSystemCode))
 			return ICD9_SYSTEM;
@@ -375,4 +403,20 @@ public class CDAConversionUtility {
 		return null;
 	}
 
+	
+	static String randomString() {
+	    int leftLimit = 48; // numeral '0'
+	    int rightLimit = 122; // letter 'z'
+	    int targetStringLength = 10;
+	    Random random = new Random();
+
+	    String generatedString = random.ints(leftLimit, rightLimit + 1)
+	      .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+	      .limit(targetStringLength)
+	      .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+	      .toString();
+	    
+	    return generatedString;
+	}
+	
 }

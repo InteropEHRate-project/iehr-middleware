@@ -15,11 +15,11 @@ import javax.xml.xpath.XPathFactory;
 
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
+import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Media;
 import org.hl7.fhir.r4.model.Observation;
-import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
 import org.hl7.fhir.r4.model.Reference;
@@ -33,7 +33,7 @@ import ca.uhn.fhir.parser.IParser;
 import eu.interopehrate.r2d.ehr.converter.Converter;
 
 
-public class CDAMedicalVisitConverter implements Converter {
+public class CDAEncounterEverythingConverter implements Converter {
 	
 	@Override
 	public void convertToFile(File input, File output) throws Exception {
@@ -79,10 +79,7 @@ public class CDAMedicalVisitConverter implements Converter {
 		// #4.5 adds the patient to the bundle
 		Encounter encounter = CDAConversionUtility.toEncounter(encounterNode, subject);
 		bundle.addEntry().setResource(encounter);
-		
-		// #7 Creates the Organization
-		Organization org = null;
-		
+				
 		// #5 Gets the sections nodes list from the CDA file
 		NodeList sections = (NodeList)xPath.compile("//cda:section")
 				.evaluate(xmlDocument, XPathConstants.NODESET);
@@ -98,11 +95,11 @@ public class CDAMedicalVisitConverter implements Converter {
 			if ("30954-2".equals(sectionCode)) {
 				addLaboratoryReportToBundle(sectionNode, bundle, subject, practitioner, encounter);				
 			} else if ("29548-5".equals(sectionCode)) {
-				addConditionToBundle(sectionNode, bundle, subject, practitioner, org, encounter);
+				addConditionToBundle(sectionNode, bundle, subject, practitioner, encounter);
 			} if ("62387-6".equals(sectionCode)) {
-				addImageReportsToBundle(sectionNode, bundle, subject, practitioner, org, encounter);
+				addImageReportsToBundle(sectionNode, bundle, subject, practitioner, encounter);
 			} if ("8716-3".equals(sectionCode)) {
-				addVitalSignsToBundle(sectionNode, bundle, subject, practitioner, org, encounter);
+				addVitalSignsToBundle(sectionNode, bundle, subject, practitioner, encounter);
 			} 
 		}
 		
@@ -115,15 +112,25 @@ public class CDAMedicalVisitConverter implements Converter {
 	
 	
 	private void addConditionToBundle(Node sectionNode, Bundle bundle, Patient subject,
-			Practitioner practitioner, Organization org, Encounter encounter) throws ParseException {
-		System.out.println("Adding Condition to the Bundle");
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		
+		NodeList entries = ((Element)sectionNode).getElementsByTagName("entry");
+		Node obsNode;
+		Condition cond;
+		for (int i=0; i < entries.getLength(); i++) {
+			obsNode = CDAConversionUtility.getChildByName(entries.item(i), "observation");
+			cond = CDAConversionUtility.toCondition(obsNode, subject, practitioner, 
+					encounter.getPeriod().getStart());
+			cond.setEncounter(new Reference(encounter));
+			bundle.addEntry().setResource(cond);			
+		}
+		
 	}
 	
 	
 	private void addVitalSignsToBundle(Node sectionNode, Bundle bundle, Patient subject,
-			Practitioner practitioner, Organization org, Encounter encounter) throws ParseException {
+			Practitioner practitioner, Encounter encounter) throws ParseException {
 		
-		System.out.println("Adding VitalSigns to the Bundle");
 		// retrieves effective date and time
 		NodeList descendants = ((Element)sectionNode).getElementsByTagName("effectiveTime");
 		String effectiveTime = ((Element)descendants.item(0)).getAttribute("value");
@@ -166,29 +173,22 @@ public class CDAMedicalVisitConverter implements Converter {
 			labReport.addResult(new Reference(obs));
 			bundle.addEntry().setResource(obs);
 		}		
-		
-		System.out.println("Adding LaboratoryReport to the Bundle");
 	}
 
 	
 	private void addImageReportsToBundle(Node sectionNode, Bundle bundle, Patient subject,
-			Practitioner practitioner, Organization org, Encounter encounter) throws ParseException {
-		
-		System.out.println("Adding ImagesReport to the Bundle");
-
+			Practitioner practitioner, Encounter encounter) throws ParseException {
 		// Each entries represent a diagnostic examination
 		NodeList entries = ((Element)sectionNode).getElementsByTagName("entry");
 		for (int i=0; i < entries.getLength(); i++) {
-			System.out.println(entries.item(i).getLocalName());
 			addImageReportToBundle(entries.item(i), bundle, subject,
-					practitioner, org, encounter);
+					practitioner, encounter);
 		}		
-	
 	}
 	
 	
 	private void addImageReportToBundle(Node entryNode, Bundle bundle, Patient subject,
-			Practitioner practitioner, Organization org, Encounter encounter) throws ParseException {
+			Practitioner practitioner, Encounter encounter) throws ParseException {
 		
 		Node actNode = CDAConversionUtility.getChildByName(entryNode, "act");
 		Node codeNode = CDAConversionUtility.getChildByName(actNode, "code");

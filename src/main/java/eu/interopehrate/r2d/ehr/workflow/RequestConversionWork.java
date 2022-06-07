@@ -40,7 +40,7 @@ class RequestConversionWork implements Work {
 				EHRResponse convResponse = localConversionService.convert(ehrRequest, ehrResponse);
 				workContext.put(EHRRequestProcessor.FHIR_DATA_KEY, convResponse);
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);
-			} catch (Exception e) {
+			} catch (Exception | Error e) {
 				logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()), e);
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
@@ -52,14 +52,11 @@ class RequestConversionWork implements Work {
 			// #1 submit first request to the IHS Service for requesting a conversion
 			try {
 				ihsService.requestConversion(ehrRequest, ehrResponse);			
-			} catch (Exception e) {
+			} catch (Exception | Error e) {
 				logger.error("Task completed with error: " + e.getMessage(), e);
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 			}
-			
-			
-			
 			
 			// #2 sends a second request to the IHS Service for retrieving the results
 			try {
@@ -72,13 +69,12 @@ class RequestConversionWork implements Work {
 					workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, ihsResponse.getMessage());
 					return new DefaultWorkReport(WorkStatus.FAILED, workContext);				
 				}
-			} catch (Exception e) {
+			} catch (Exception | Error e) {
 				logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()), e);
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 			}
 		}
-		
 	}
 
 	
