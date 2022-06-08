@@ -40,6 +40,7 @@ public class EHRRequestProcessor /* implements Runnable */ {
 	public void run() {
 		Work authorizeCitizenToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("AuthorizeCitizenToEHR");
 		Work requestToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("RequestToEHRWork");
+		Work extractImages = (Work)EHRContextProvider.getApplicationContext().getBean("ExtractImagesWork");
 		Work requestConversion = (Work)EHRContextProvider.getApplicationContext().getBean("RequestConversionWork");
 		Work SendFailureToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendFailureToR2DWork");
 		Work SendSuccessToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendSuccessToR2DWork");
@@ -56,11 +57,19 @@ public class EHRRequestProcessor /* implements Runnable */ {
 				.build();
 		*/
 		
-		WorkFlow ihsWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("Convert data with IHS workflow")
+		WorkFlow conversionWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
+				.named("Convert data workflow")
 				.execute(requestConversion)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(SendSuccessToR2D)
+				.otherwise(SendFailureToR2D)
+				.build();
+
+		WorkFlow imageReductionWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
+				.named("Image extraction workflow")
+				.execute(extractImages)
+				.when(WorkReportPredicate.COMPLETED)
+				.then(conversionWorkflow)
 				.otherwise(SendFailureToR2D)
 				.build();
 
@@ -68,7 +77,7 @@ public class EHRRequestProcessor /* implements Runnable */ {
 				.named("Request To EHR workflow")
 				.execute(requestToEHR)
 				.when(WorkReportPredicate.COMPLETED)
-				.then(ihsWorkflow)
+				.then(imageReductionWorkFlow)
 				.otherwise(SendFailureToR2D)
 				.build();
 		
@@ -101,7 +110,7 @@ public class EHRRequestProcessor /* implements Runnable */ {
 			logger.info("Processing of request: {} completed with SUCCESS", ehrRequest.getR2dRequestId());
 		
 		// delete tmp file
-		Boolean deleteTempFiles = Boolean.valueOf(Configuration.getProperty("ehr.deleteTmpFiles"));
+		Boolean deleteTempFiles = Boolean.valueOf(Configuration.getProperty(Configuration.EHR_DELETE_TEMP_FILES));
 		if (deleteTempFiles)
 			deleteTempFiles();
 
@@ -113,7 +122,7 @@ public class EHRRequestProcessor /* implements Runnable */ {
 	private void deleteTempFiles() {
 		String ehrFileName = String.format("%s%s.%s", Configuration.getDBPath(), 
 				ehrRequest.getR2dRequestId(),
-				Configuration.getProperty("ehr.fileExtension"));
+				Configuration.getProperty(Configuration.EHR_FILE_EXT));
 		Path filePath = Paths.get(ehrFileName);
 		try {
 			Files.deleteIfExists(filePath);

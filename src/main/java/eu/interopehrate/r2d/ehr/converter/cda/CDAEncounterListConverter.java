@@ -22,6 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ca.uhn.fhir.parser.IParser;
+import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.EHRMWServer;
 import eu.interopehrate.r2d.ehr.converter.Converter;
 
@@ -43,7 +44,7 @@ public class CDAEncounterListConverter implements Converter {
 		Bundle bundle = new Bundle();
 		bundle.setType(BundleType.SEARCHSET);
 		bundle.setTimestamp(new Date());
-		bundle.setLanguage("en");
+		bundle.setLanguage(Configuration.getProperty(Configuration.EHR_LANGUAGE));
 		bundle.setId(UUID.randomUUID().toString());
 
 
@@ -53,7 +54,7 @@ public class CDAEncounterListConverter implements Converter {
 				.evaluate(xmlDocument, XPathConstants.NODE);
 		// #4.1 adds the patient to the bundle
 		Patient subject = CDAConversionUtility.toPatient(patientNode);
-		bundle.addEntry().setResource(subject);
+		// bundle.addEntry().setResource(subject);
 		
 		// #5 Gets the encounters nodes from CDA file
 		NodeList nodes = (NodeList)xPath.compile("//cda:encounter")

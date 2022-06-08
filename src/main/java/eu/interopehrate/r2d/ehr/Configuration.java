@@ -6,10 +6,28 @@ import java.util.Properties;
 public final class Configuration {
 
 	public static final String EHR_MW_CREDENTIALS = "ehrmw.credentials";
+	public static final String EHR_MW_STORAGE_PATH = "ehrmw.storage.path";
+	public static final String EHR_MW_VERSION = "ehrmw.version";
+
 	public static final String R2DA_ENDPOINT = "r2da.endpoint";
 	public static final String R2DA_SERVICES_CONTEXT = "r2da.services.context";
+	public static final String R2DA_STORAGE_PATH = "r2da.storage.path";
+
 	public static final String IHS_ENDPOINT = "ihs.endpoint";
-	public static final String EHR_ENDPOINT = "ehr.endpoint";
+	public static final String IHS_TIMEOUT = "ihs.timeoutInMinutes";
+	public static final String IHS_MAPPING_CODES = "ihs.mapping.codes";
+
+	public static final String EHR_PROTOCOL = "ehr.protocol";
+	public static final String EHR_HOST = "ehr.host";
+	public static final String EHR_PORT = "ehr.port";
+	public static final String EHR_TIMEOUT = "ehr.timeoutInMinutes";
+	public static final String EHR_MIME = "ehr.mime";
+	public static final String EHR_NAME = "ehr.name";
+	public static final String EHR_FILE_EXT = "ehr.fileExtension";
+	public static final String EHR_DELETE_TEMP_FILES = "ehr.deleteTmpFiles";
+	public static final String EHR_HEADER = "ehr.header";
+	public static final String EHR_LANGUAGE = "ehr.language";
+	
 	
 	private static Properties config = new Properties();
 	
@@ -31,15 +49,15 @@ public final class Configuration {
 	}
 	
 	public static String getDBPath() {
-		return Configuration.getProperty("ehrmw.storage.path");
+		return Configuration.getProperty(EHR_MW_STORAGE_PATH);
 	}
 	
 	public static String getR2DADBPath() {
-		return Configuration.getProperty("r2da.storage.path");
+		return Configuration.getProperty(R2DA_STORAGE_PATH);
 	}
 	
 	public static String getVersion() {
-		return Configuration.getProperty("ehrmw.version");
+		return Configuration.getProperty(EHR_MW_VERSION);
 	}
 
 }

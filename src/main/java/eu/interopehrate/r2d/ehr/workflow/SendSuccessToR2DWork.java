@@ -18,7 +18,7 @@ public class SendSuccessToR2DWork implements Work {
 	@Autowired(required = true)
 	private R2DAccessService r2dAccessService;
 	
-	private final Logger logger = LoggerFactory.getLogger(RequestToIHSWork.class);
+	private final Logger logger = LoggerFactory.getLogger(SendSuccessToR2DWork.class);
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {

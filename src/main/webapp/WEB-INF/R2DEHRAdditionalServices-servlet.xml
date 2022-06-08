@@ -32,10 +32,14 @@
 	<bean name="requestController" class="eu.interopehrate.r2d.ehr.workflow.EHRRequestController" scope="singleton" />
 	<bean name="AuthorizeCitizenToEHR" class="eu.interopehrate.r2d.ehr.workflow.AuthorizeCitizenToEHR" scope="prototype" />
 	<bean name="RequestToEHRWork" class="eu.interopehrate.r2d.ehr.workflow.RequestToEHRWork" scope="prototype" />
+	<bean name="ExtractImagesWork" class="eu.interopehrate.r2d.ehr.workflow.ImageExtractorWork" scope="prototype" />
 	<bean name="RequestConversionWork" class="eu.interopehrate.r2d.ehr.workflow.RequestConversionWork" scope="prototype" />
 	<bean name="SendFailureToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendFailureToR2DWork" scope="prototype" />
 	<bean name="SendSuccessToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendSuccessToR2DWork" scope="prototype" />
-		
+	
+	<!-- bean for extracting images from EHR generated files -->
+	<bean name="imageExtractor" class="eu.interopehrate.r2d.ehr.image.CDAImageExtractor" scope="prototype" />
+	
 	<bean id="executor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="5" />

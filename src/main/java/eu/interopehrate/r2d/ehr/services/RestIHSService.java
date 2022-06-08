@@ -63,7 +63,7 @@ public class RestIHSService implements IHSService {
 			int returnCode = httpInvoker.executePost(
 					new URI(serviceURL.toString()), 
 					new File(ehrFileName),
-					Configuration.getProperty("ehr.mime"));
+					Configuration.getProperty(Configuration.EHR_MIME));
 			
 			if (returnCode != HttpStatus.SC_OK) {
 				String errMsg = String.format("Error %d while invoking service of IHS", returnCode);
@@ -136,7 +136,7 @@ public class RestIHSService implements IHSService {
 	 * The list of codes to be searched is stored in the configuration file
 	 */
 	private String buildParamString(String cdaFileName) throws Exception {
-		StringTokenizer codes = new StringTokenizer(Configuration.getProperty("ihs.mapping.codes"), ";");
+		StringTokenizer codes = new StringTokenizer(Configuration.getProperty(Configuration.IHS_MAPPING_CODES), ";");
 		StringBuffer paramString = new StringBuffer();		
 		Process process;
 		String currentCode;

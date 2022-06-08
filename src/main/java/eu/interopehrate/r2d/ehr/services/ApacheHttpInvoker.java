@@ -187,7 +187,7 @@ public class ApacheHttpInvoker implements HttpInvoker {
 		// Creates configured Get request
 		final Builder configBuilder = RequestConfig.custom();
 		// configures timeout
-		int timeout = Integer.valueOf(Configuration.getProperty("ihs.timeoutInMinutes")) * 60000;
+		int timeout = Integer.valueOf(Configuration.getProperty(Configuration.IHS_TIMEOUT)) * 60000;
 		configBuilder
 			.setSocketTimeout(timeout)
 			.setConnectTimeout(timeout)

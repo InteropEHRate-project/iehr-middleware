@@ -47,12 +47,12 @@ public class RestEHRService implements EHRService {
 			storagePath += "/";
 		
 		// Retrieves file extension
-		fileExtension = Configuration.getProperty("ehr.fileExtension");
+		fileExtension = Configuration.getProperty(Configuration.EHR_FILE_EXT);
 		if (!fileExtension.startsWith("."))
 			fileExtension = "." + fileExtension;
 		
 		// Retrieves ehr name
-		ehrName = Configuration.getProperty("ehr.name");
+		ehrName = Configuration.getProperty(Configuration.EHR_NAME);
 	}
 	
 	
@@ -193,9 +193,9 @@ public class RestEHRService implements EHRService {
 	 */
 	private URI createServiceURI(String serviceName, String servicePath) throws NumberFormatException, 
 															MalformedURLException, URISyntaxException {
-		String ehrProtocol = Configuration.getProperty("ehr.protocol");
-		String ehrHost = Configuration.getProperty("ehr.host");
-		String ehrPort = Configuration.getProperty("ehr.port");
+		String ehrProtocol = Configuration.getProperty(Configuration.EHR_PROTOCOL);
+		String ehrHost = Configuration.getProperty(Configuration.EHR_HOST);
+		String ehrPort = Configuration.getProperty(Configuration.EHR_PORT);
 		
 		String servicePort = Configuration.getProperty(serviceName + ".PORT");
 		if (servicePort != null && servicePort.trim().length() > 0)
@@ -220,7 +220,7 @@ public class RestEHRService implements EHRService {
 		int retCode = httpInvoker.executeGet(uri, out, getAdditionalHeaderParams());
 		final EHRResponse ehrResponse = new EHRResponse();
 		if (retCode == HttpStatus.SC_OK) {
-			ContentType mime = ContentType.parse(Configuration.getProperty("ehr.mime"));
+			ContentType mime = ContentType.parse(Configuration.getProperty(Configuration.EHR_MIME));
 			ehrResponse.setContentType(mime);
 			ehrResponse.setOnFile(true);
 			ehrResponse.setResponse(theRequestId + fileExtension);

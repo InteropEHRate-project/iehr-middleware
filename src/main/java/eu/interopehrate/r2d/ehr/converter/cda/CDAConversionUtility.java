@@ -33,13 +33,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
+import eu.interopehrate.r2d.ehr.Configuration;
 
 public class CDAConversionUtility {
 	public static final String HTTP_UNITSOFMEASURE_ORG = "http://unitsofmeasure.org";
     public static final String ICD9_SYSTEM = "http://hl7.org/fhir/sid/icd-9-cm"; // 2.16.840.1.113883.6.2
     public static final String LOINC_SYSTEM = "http://loinc.org"; // 2.16.840.1.113883.6.1
 
-    private static final String DEFAULT_LANG = "en";
 	private static SimpleDateFormat YYYYMdd_FORMATTER = new SimpleDateFormat("yyyyMMdd");
 	// 20210520090000
 	private static SimpleDateFormat yyyyMMddHHmmss_FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
@@ -226,7 +226,7 @@ public class CDAConversionUtility {
 	}
 	
 	
-	public static Observation toBasicObservation(Node obsNode, String effectiveTime, 
+	static Observation toBasicObservation(Node obsNode, String effectiveTime, 
 			Patient subject, Practitioner practitioner) throws ParseException {
 		Observation obs = new Observation();
 		Meta meta = new Meta();
@@ -275,7 +275,7 @@ public class CDAConversionUtility {
         e.setStatus(EncounterStatus.FINISHED);
         
         // language
-        e.setLanguage(DEFAULT_LANG);
+        e.setLanguage(Configuration.getProperty(Configuration.EHR_LANGUAGE));
         
 		// class
 		e.setClass_(new Coding("http://terminology.hl7.org/CodeSystem/v3-ActCode", "AMB", "ambulatory"));

@@ -30,6 +30,8 @@ import org.w3c.dom.NodeList;
 
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
+import eu.interopehrate.r2d.ehr.Configuration;
+import eu.interopehrate.r2d.ehr.EHRMWServer;
 import eu.interopehrate.r2d.ehr.converter.Converter;
 
 
@@ -41,6 +43,7 @@ public class CDAEncounterEverythingConverter implements Converter {
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		builderFactory.setNamespaceAware(true);
 		DocumentBuilder builder = builderFactory.newDocumentBuilder();
+		
 		Document xmlDocument = builder.parse(new FileInputStream(input));
 		// #2 Creates the XPath
 		XPath xPath = XPathFactory.newInstance().newXPath();
@@ -50,7 +53,7 @@ public class CDAEncounterEverythingConverter implements Converter {
 		Bundle bundle = new Bundle();
 		bundle.setType(BundleType.SEARCHSET);
 		bundle.setTimestamp(new Date());
-		bundle.setLanguage("en");
+		bundle.setLanguage(Configuration.getProperty(Configuration.EHR_LANGUAGE));
 		bundle.setId(UUID.randomUUID().toString());
 
 
@@ -104,8 +107,9 @@ public class CDAEncounterEverythingConverter implements Converter {
 		}
 		
 		// #6 stores bundle to file
-		//final IParser parser = EHRMWServer.FHIR_CONTEXT.newJsonParser();
-		final IParser parser = FhirContext.forR4().newJsonParser().setPrettyPrint(true);
+		final IParser parser = EHRMWServer.FHIR_CONTEXT.newJsonParser();
+		parser.setPrettyPrint(true);
+		//final IParser parser = FhirContext.forR4().newJsonParser().setPrettyPrint(true);
 		parser.encodeResourceToWriter(bundle, new FileWriter(output));
 
 	}
