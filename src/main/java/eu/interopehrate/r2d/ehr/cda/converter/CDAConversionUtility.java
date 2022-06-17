@@ -1,4 +1,4 @@
-package eu.interopehrate.r2d.ehr.converter.cda;
+package eu.interopehrate.r2d.ehr.cda.converter;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -40,7 +40,7 @@ public class CDAConversionUtility {
     public static final String ICD9_SYSTEM = "http://hl7.org/fhir/sid/icd-9-cm"; // 2.16.840.1.113883.6.2
     public static final String LOINC_SYSTEM = "http://loinc.org"; // 2.16.840.1.113883.6.1
 
-	private static SimpleDateFormat YYYYMdd_FORMATTER = new SimpleDateFormat("yyyyMMdd");
+	private static SimpleDateFormat YYYYMMdd_FORMATTER = new SimpleDateFormat("yyyyMMdd");
 	// 20210520090000
 	private static SimpleDateFormat yyyyMMddHHmmss_FORMATTER = new SimpleDateFormat("yyyyMMddHHmmss");
 
@@ -293,12 +293,12 @@ public class CDAConversionUtility {
 		
 		if (((Element)effectiveTime).hasAttribute("value")) {
 			period.setStart(
-					YYYYMdd_FORMATTER.parse(((Element)effectiveTime).getAttribute("value")),
+					YYYYMMdd_FORMATTER.parse(((Element)effectiveTime).getAttribute("value")),
 					TemporalPrecisionEnum.DAY);
 			e.setPeriod(period);
 		} else {
 			Node lowNode = getChildByName(effectiveTime, "low");
-			period.setStart(YYYYMdd_FORMATTER.parse(((Element)lowNode).getAttribute("value")));
+			period.setStart(YYYYMMdd_FORMATTER.parse(((Element)lowNode).getAttribute("value")));
 			e.setPeriod(period);
 		}
 

@@ -22,7 +22,7 @@ public class SendSuccessToR2DWork implements Work {
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
-		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
+		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.REQUEST_KEY);
 
 		try {
 			EHRResponse ihsResponse = (EHRResponse) workContext.get(EHRRequestProcessor.FHIR_DATA_KEY);

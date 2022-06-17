@@ -31,8 +31,6 @@ public class RestIHSService implements IHSService {
 		super();
 		// Retrieves storage path from config file
 		storagePath = eu.interopehrate.r2d.ehr.Configuration.getDBPath();
-		if (!storagePath.endsWith("/"))
-			storagePath += "/";
 	}
 
 	@Override
@@ -60,6 +58,7 @@ public class RestIHSService implements IHSService {
 		
 		// #4 Invokes the HTTP service
 		try {
+			logger.debug("Requesting to IHS conversion of file {}", ehrResponse.getResponse());
 			int returnCode = httpInvoker.executePost(
 					new URI(serviceURL.toString()), 
 					new File(ehrFileName),

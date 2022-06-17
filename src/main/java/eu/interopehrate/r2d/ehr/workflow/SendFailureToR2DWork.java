@@ -21,7 +21,7 @@ public class SendFailureToR2DWork implements Work {
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
-		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
+		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.REQUEST_KEY);
 		// logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 		
 		try {

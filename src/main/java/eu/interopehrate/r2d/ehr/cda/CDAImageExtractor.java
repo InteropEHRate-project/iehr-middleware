@@ -1,4 +1,4 @@
-package eu.interopehrate.r2d.ehr.image;
+package eu.interopehrate.r2d.ehr.cda;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -23,6 +23,8 @@ import org.xml.sax.Locator;
 import org.xml.sax.helpers.DefaultHandler;
 
 import eu.interopehrate.r2d.ehr.Configuration;
+import eu.interopehrate.r2d.ehr.image.ImageConstants;
+import eu.interopehrate.r2d.ehr.image.ImageExtractor;
 
 public class CDAImageExtractor extends DefaultHandler implements ImageExtractor {
 	private static final double KILOBYTE = 1024D;
@@ -45,7 +47,6 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 	// attrs needed for request management
 	private String requestId;
 	private String ehrMWStoragePath;
-	private String r2daStoragePath;
 	private String fileExtension;
 		
 	// attrs needed for file management
@@ -54,38 +55,35 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 	private Encoder encoder;
 
 	@Override
-	public void extractImages(String requestId) throws Exception {
+	public File createReducedFile(String requestId, String inputFileName) throws Exception {
 		this.requestId = requestId;
 
 		// Retrieves storage path from config file
 		ehrMWStoragePath = Configuration.getDBPath();
-		if (!ehrMWStoragePath.endsWith("/"))
-			ehrMWStoragePath += "/";
-		
-		r2daStoragePath = Configuration.getR2DADBPath();
-		if (!r2daStoragePath.endsWith("/"))
-			r2daStoragePath += "/";
 		
 		// Retrieves file extension
 		fileExtension = Configuration.getProperty(Configuration.EHR_FILE_EXT);
 		if (!fileExtension.startsWith("."))
 			fileExtension = "." + fileExtension;
-
-		// retrieves Base64Encoder
-		encoder = Base64.getEncoder();
 				
-		String fileToReduceName = requestId + fileExtension;
+		// String fileToReduceName = requestId + fileExtension;
 		// Creates input file
-		File fileToReduce = new File(ehrMWStoragePath + fileToReduceName);
+		File fileToReduce = new File(ehrMWStoragePath + inputFileName);
+		File reducedFile = new File(ehrMWStoragePath + requestId + "_reduced" + fileExtension);
 		
 		// Checks if the file contains DICOM images
 		if (!needsToExtractImages(fileToReduce.getAbsolutePath())) {
-			logger.info("File: {} does not need to be reduced, it does not contain images", 
-					fileToReduceName);
+			logger.info("File: {} does not need to be reduced...", 
+					inputFileName);
+			// only renames the input file
+			fileToReduce.renameTo(reducedFile);
+			return reducedFile;
 		}
-		
+
+		// retrieves Base64Encoder
+		encoder = Base64.getEncoder();
+
 		// Creates reduced file name
-		File reducedFile = new File(ehrMWStoragePath + requestId + "_reduced" + fileExtension);
 		reducedFileWriter = new PrintWriter(new BufferedWriter(new FileWriter(reducedFile)));
 		
 		try (InputStream input = new BufferedInputStream(new FileInputStream(fileToReduce));) {
@@ -93,10 +91,12 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 			factory.setValidating(true);
 			SAXParser saxParser = factory.newSAXParser();
 			logger.info("Starting reduction of file: {}, inital size: {} Kb", 
-					fileToReduceName, NumberFormat.getInstance().format(fileToReduce.length() / KILOBYTE));
+					inputFileName, NumberFormat.getInstance().format(fileToReduce.length() / KILOBYTE));
 			saxParser.parse(input, this);
 			logger.info("Reduction of file ended, current size: {} Kb", 
 					NumberFormat.getInstance().format(reducedFile.length() / KILOBYTE));
+			
+			return reducedFile;
 		} catch (Exception e) {
 			throw e;
 		} 
@@ -162,7 +162,6 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 		for (int i = 0; i < atts.getLength(); i++) {
 			reducedFileWriter.print(" " + atts.getQName(i) + "=\"" + atts.getValue(i) + "\"");
 			
-			
 			if ("mediaType".equals(atts.getQName(i))) {
 				foundMediaType = true;
 				imageCounter++;
@@ -183,7 +182,7 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 				imageFileWriter.flush();
 				imageFileWriter.close();
 				imageFileWriter = null;
-			}				
+			}
 		}
 	}
 
@@ -192,13 +191,15 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 	public void characters(char[] ch, int start, int length) {
 		if (parsingValue && foundMediaType) {
 			if (!placeholderWritten) {
-				String imageName = String.format("imagePlaceholder%d", imageCounter);
+				String imageName = String.format(ImageConstants.IMAGE_PLACEHOLDER + "%d", imageCounter);
 				reducedFileWriter.print(encoder.encodeToString(imageName.getBytes()));
 				placeholderWritten = true;
 				// creates new output file for storing the image
 				try {
 					imageFileWriter = new PrintWriter(new BufferedWriter(
-							new FileWriter(r2daStoragePath + requestId + "_" + imageName)));
+							new FileWriter(ehrMWStoragePath + 
+									requestId + 
+									imageName)));
 				} catch (IOException e) {
 					throw new IllegalStateException(e.getMessage(), e);
 				}
@@ -206,6 +207,7 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 			// write image char to file
 			for (int i = start; i < start + length; i++)
 				imageFileWriter.print(ch[i]);
+			
 		} else {
 			StringBuilder sb = new  StringBuilder();
 			for (int i = start; i < start + length; i++)

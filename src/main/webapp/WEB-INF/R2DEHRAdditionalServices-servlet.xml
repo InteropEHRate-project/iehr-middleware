@@ -21,24 +21,28 @@
 	<bean name="r2dAccessService" class="eu.interopehrate.r2d.ehr.services.RestR2DAccessService" scope="prototype" />	
 	<bean name="localConversionService" class="eu.interopehrate.r2d.ehr.services.LocalConversionService" scope="prototype" />	
 
-	<!-- Bean for local conversion -->
-	<bean name="cdaEncounterListConverter" class="eu.interopehrate.r2d.ehr.converter.cda.CDAEncounterListConverter" scope="prototype" />	
-	<bean name="cdaEncounterEverythingConverter" class="eu.interopehrate.r2d.ehr.converter.cda.CDAEncounterEverythingConverter" scope="prototype" />	
-	
 	<!-- Bean providing concrete HTTP transport layer -->
 	<bean name="httpInvoker" class="eu.interopehrate.r2d.ehr.services.ApacheHttpInvoker" scope="prototype" />
 	
 	<!-- bean for workflow execution -->
 	<bean name="requestController" class="eu.interopehrate.r2d.ehr.workflow.EHRRequestController" scope="singleton" />
-	<bean name="AuthorizeCitizenToEHR" class="eu.interopehrate.r2d.ehr.workflow.AuthorizeCitizenToEHR" scope="prototype" />
+
+	<bean name="AuthorizeCitizenToEHRWork" class="eu.interopehrate.r2d.ehr.workflow.AuthorizeCitizenToEHRWork" scope="prototype" />
 	<bean name="RequestToEHRWork" class="eu.interopehrate.r2d.ehr.workflow.RequestToEHRWork" scope="prototype" />
-	<bean name="ExtractImagesWork" class="eu.interopehrate.r2d.ehr.workflow.ImageExtractorWork" scope="prototype" />
+	<bean name="ExtractImagesWork" class="eu.interopehrate.r2d.ehr.workflow.ExtractImageWork" scope="prototype" />
+	<bean name="AnonymizeImagesWork" class="eu.interopehrate.r2d.ehr.workflow.AnonymizeImageWork" scope="prototype" />
 	<bean name="RequestConversionWork" class="eu.interopehrate.r2d.ehr.workflow.RequestConversionWork" scope="prototype" />
 	<bean name="SendFailureToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendFailureToR2DWork" scope="prototype" />
 	<bean name="SendSuccessToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendSuccessToR2DWork" scope="prototype" />
 	
-	<!-- bean for extracting images from EHR generated files -->
-	<bean name="imageExtractor" class="eu.interopehrate.r2d.ehr.image.CDAImageExtractor" scope="prototype" />
+	<!-- Bean for CDA data management -->
+	<bean name="cdaEncounterListConverter" class="eu.interopehrate.r2d.ehr.cda.converter.CDAEncounterListConverter" scope="prototype" />	
+	<bean name="cdaEncounterEverythingConverter" class="eu.interopehrate.r2d.ehr.cda.converter.CDAEncounterEverythingConverter" scope="prototype" />	
+	<bean name="cdaImageExtractor" class="eu.interopehrate.r2d.ehr.cda.CDAImageExtractor" scope="prototype" />
+
+	<!-- Bean for CHU data management -->
+	<bean name="chuEncounterListConverter" class="eu.interopehrate.r2d.ehr.chu.converter.CHUEncounterListConverter" scope="prototype" />	
+	<bean name="chuImageExtractor" class="eu.interopehrate.r2d.ehr.chu.CHUImageExtractor" scope="prototype" />
 	
 	<bean id="executor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">

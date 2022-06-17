@@ -20,6 +20,7 @@ public final class Configuration {
 	public static final String EHR_PROTOCOL = "ehr.protocol";
 	public static final String EHR_HOST = "ehr.host";
 	public static final String EHR_PORT = "ehr.port";
+	public static final String EHR_CONTEXT_PATH = "ehr.contextPath";
 	public static final String EHR_TIMEOUT = "ehr.timeoutInMinutes";
 	public static final String EHR_MIME = "ehr.mime";
 	public static final String EHR_NAME = "ehr.name";
@@ -27,7 +28,7 @@ public final class Configuration {
 	public static final String EHR_DELETE_TEMP_FILES = "ehr.deleteTmpFiles";
 	public static final String EHR_HEADER = "ehr.header";
 	public static final String EHR_LANGUAGE = "ehr.language";
-	
+	public static final String EHR_IMAGE_EXTRACTOR = "ehr.imageExtractor.bean";
 	
 	private static Properties config = new Properties();
 	
@@ -49,11 +50,19 @@ public final class Configuration {
 	}
 	
 	public static String getDBPath() {
-		return Configuration.getProperty(EHR_MW_STORAGE_PATH);
+		String tmp = Configuration.getProperty(EHR_MW_STORAGE_PATH);
+		if (!tmp.endsWith("/"))
+			tmp += "/";
+		
+		return tmp;
 	}
 	
 	public static String getR2DADBPath() {
-		return Configuration.getProperty(R2DA_STORAGE_PATH);
+		String tmp =  Configuration.getProperty(R2DA_STORAGE_PATH);
+		if (!tmp.endsWith("/"))
+			tmp += "/";
+		
+		return tmp;
 	}
 	
 	public static String getVersion() {

@@ -14,14 +14,14 @@ import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import eu.interopehrate.r2d.ehr.services.EHRService;
 
-class AuthorizeCitizenToEHR implements Work {
+class AuthorizeCitizenToEHRWork implements Work {
 	@Autowired(required = true)
 	private EHRService ehrService;
-	private final Logger logger = LoggerFactory.getLogger(AuthorizeCitizenToEHR.class);
+	private final Logger logger = LoggerFactory.getLogger(AuthorizeCitizenToEHRWork.class);
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
-		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
+		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.REQUEST_KEY);
 		//logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 	
 		EHRResponse response = null;

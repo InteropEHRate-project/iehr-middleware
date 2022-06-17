@@ -51,16 +51,16 @@ public class ApacheHttpInvoker implements HttpInvoker {
 				if (logger.isDebugEnabled())
 					logger.debug("Service returned the following code: {}", response.getStatusLine().getStatusCode());
 
-				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK || 
+					response.getStatusLine().getStatusCode() == HttpStatus.SC_ACCEPTED) {
 					// Copy results to file
 					try (InputStream inStream = response.getEntity().getContent();
 						 OutputStream outStream = new BufferedOutputStream(output);) {
 						IOUtils.copy(inStream, outStream);
 					}
-					return HttpStatus.SC_OK;
-				} else {
-					return response.getStatusLine().getStatusCode();
 				}
+				
+				return response.getStatusLine().getStatusCode();
 			}
 		} 
 	}
@@ -122,11 +122,12 @@ public class ApacheHttpInvoker implements HttpInvoker {
 			HttpPost httpPost = new HttpPost(uri);
 			httpPost.setConfig(createRequestConfig());
 			
-			// sets body mime
-			ContentType mime = ContentType.parse(contentType);
+			// sets header parameter
 			for (HeaderParam param : headerParams )
 				httpPost.addHeader(param.getName(), param.getValue());
 
+			// sets body mime type
+			ContentType mime = ContentType.parse(contentType);
 			// set body
 			httpPost.setEntity(new FileEntity(body, mime));
 			
@@ -160,6 +161,9 @@ public class ApacheHttpInvoker implements HttpInvoker {
 				httpPost.addHeader(param.getName(), param.getValue());
 
 			// set body
+			if (body == null)
+				body = "Generic error on R2DAccessServer.";
+			
 			httpPost.setEntity(new StringEntity(body, mime));
 			
 			try (CloseableHttpResponse response = httpclient.execute(httpPost)) {
@@ -175,6 +179,7 @@ public class ApacheHttpInvoker implements HttpInvoker {
 		}
 	}
 	
+	
 	private CloseableHttpClient createClient() {
 		return HttpClients.custom()
 		.disableAutomaticRetries()
@@ -182,6 +187,7 @@ public class ApacheHttpInvoker implements HttpInvoker {
 		.build();
 //		return HttpClients.createSystem();
 	}
+	
 	
 	private RequestConfig createRequestConfig() {
 		// Creates configured Get request
@@ -192,17 +198,6 @@ public class ApacheHttpInvoker implements HttpInvoker {
 			.setSocketTimeout(timeout)
 			.setConnectTimeout(timeout)
 			.setConnectionRequestTimeout(timeout);
-		
-		/*
-		configBuilder
-			.setCircularRedirectsAllowed(true)
-			.setRedirectsEnabled(true)
-			.setExpectContinueEnabled(true);
-		*/
-
-		// if (System.getProperty("") != null) {
-		// }
-		// configBuilder.setProxy(null);
 		
 		return configBuilder.build();
 	}

@@ -24,7 +24,7 @@ class RequestToEHRWork implements Work {
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
-		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);		
+		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.REQUEST_KEY);		
 		String ehrPatientId = (String)workContext.get(EHRRequestProcessor.PATIENT_ID_KEY);
 
 		EHRResponse response = null;
@@ -61,7 +61,7 @@ class RequestToEHRWork implements Work {
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 			} else {
 				if (response.getStatus() == EHRResponseStatus.COMPLETED) {
-					workContext.put(EHRRequestProcessor.CDA_DATA_KEY, response);
+					workContext.put(EHRRequestProcessor.EHR_DATA_KEY, response);
 					return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);				
 				} else {
 					logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName(), response.getMessage()));

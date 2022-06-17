@@ -1,4 +1,4 @@
-package eu.interopehrate.r2d.ehr.converter.cda;
+package eu.interopehrate.r2d.ehr.cda.converter;
 
 import java.util.Iterator;
 

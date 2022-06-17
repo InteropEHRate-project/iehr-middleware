@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 
 public class EHRRequestController implements Runnable {
-	//@Autowired(required = true)
-	//private Executor executor;
+	// @Autowired(required = true)
+	// private Executor executor;
 	
 	private final Logger logger = LoggerFactory.getLogger(EHRRequestController.class);	
 	private BlockingQueue<EHRRequest> requestQueue = new ArrayBlockingQueue<EHRRequest>(20, true);

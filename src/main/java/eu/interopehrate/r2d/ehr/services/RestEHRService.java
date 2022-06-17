@@ -43,8 +43,6 @@ public class RestEHRService implements EHRService {
 	public RestEHRService() {		
 		// Retrieves storage path from config file
 		storagePath = Configuration.getDBPath();
-		if (!storagePath.endsWith("/"))
-			storagePath += "/";
 		
 		// Retrieves file extension
 		fileExtension = Configuration.getProperty(Configuration.EHR_FILE_EXT);
@@ -66,12 +64,14 @@ public class RestEHRService implements EHRService {
 		servicePath = servicePath.replace("$dateOfBirth$", theCitizen.getDateOfBirth());
 		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
 
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		int retCode = httpInvoker.executeGet(serviceURI, out, getAdditionalHeaderParams());
-
+		// create response
 		EHRResponse ehrResponse = new EHRResponse();
 		ehrResponse.setContentType(ContentType.TEXT_PLAIN);
-		if (retCode == HttpStatus.SC_OK) {
+
+		// invokes REST service
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		int retCode = httpInvoker.executeGet(serviceURI, out, getAdditionalHeaderParams());
+		if (retCode == HttpStatus.SC_OK || retCode == HttpStatus.SC_ACCEPTED) {
 			String patientId = out.toString();
 			if (patientId != null && patientId.trim().length() > 0) {
 				ehrResponse.setResponse(patientId);
@@ -93,7 +93,7 @@ public class RestEHRService implements EHRService {
 			logger.error(msg);
 			ehrResponse.setMessage(msg);
 		} else {
-			String errMsg = String.format("Error %d while invoking service %s of EHR!", retCode, serviceURI.toString());
+			String errMsg = String.format("Error %d while invoking service %s of EHR", retCode, serviceURI.toString());
 			logger.error(errMsg);
 			throw new IOException(errMsg);
 		}
@@ -191,15 +191,22 @@ public class RestEHRService implements EHRService {
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException 
 	 */
-	private URI createServiceURI(String serviceName, String servicePath) throws NumberFormatException, 
-															MalformedURLException, URISyntaxException {
+	private URI createServiceURI(String serviceName, String servicePath) throws Exception {
 		String ehrProtocol = Configuration.getProperty(Configuration.EHR_PROTOCOL);
 		String ehrHost = Configuration.getProperty(Configuration.EHR_HOST);
 		String ehrPort = Configuration.getProperty(Configuration.EHR_PORT);
 		
+		String ehrContextPath = Configuration.getProperty(Configuration.EHR_CONTEXT_PATH);
+		if (ehrContextPath != null && !ehrContextPath.isEmpty()) {
+			servicePath = ehrContextPath + servicePath;
+		}
+			
+		// choose the port
+		/*
 		String servicePort = Configuration.getProperty(serviceName + ".PORT");
 		if (servicePort != null && servicePort.trim().length() > 0)
 			ehrPort = servicePort;
+		*/
 		
 		URL url = new URL(ehrProtocol, ehrHost, new Integer(ehrPort), servicePath);
 		return url.toURI();

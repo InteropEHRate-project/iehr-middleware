@@ -34,6 +34,11 @@
             <id>IEHR-Nexus</id>
             <url>http://213.249.46.206:8081/repository/maven-releases/</url>
         </repository>     
+        <repository>
+        	<name>dcm4che.org</name>
+            <id>dcm4che</id>
+            <url>https://www.dcm4che.org/maven2/</url>
+        </repository> 
     </repositories>
     
 	<dependencies>
@@ -115,11 +120,11 @@
 		</dependency>
 				
 		<!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
-		<dependency>
+		<!-- dependency>
 		    <groupId>com.squareup.okhttp3</groupId>
 		    <artifactId>okhttp</artifactId>
 		    <version>4.9.3</version>
-		</dependency>
+		</dependency -->
 
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
@@ -150,6 +155,18 @@
 		    <groupId>commons-io</groupId>
 		    <artifactId>commons-io</artifactId>
 		    <version>2.7</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-compress</artifactId>
+		    <version>1.21</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.dcm4che</groupId>
+		    <artifactId>dcm4che-deident</artifactId>
+		    <version>5.26.1</version>
 		</dependency>
 
 	</dependencies>
@@ -215,10 +232,10 @@
 
                                     	<!-- logback.xml file -->
                                         <delete file="${project.build.outputDirectory}/logback.xml"/>
-                                        <copy file="src/main/resources/logback.ftgm.xml"
+                                        <copy file="src/main/resources/logback.docker.xml"
                                               tofile="${project.build.outputDirectory}/logback.xml"/>
-                                        <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                       
-                                        <delete file="${project.build.outputDirectory}/logback.ftgm.xml"/>                                       
+                                        <delete file="${project.build.outputDirectory}/logback.docker.xml"/>                                                                            
+                                        <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                                                            
                                     </target>
                                 </configuration>
                             </execution>
@@ -256,10 +273,10 @@
 
                                     	<!-- logback.xml file -->
                                         <delete file="${project.build.outputDirectory}/logback.xml"/>
-                                        <copy file="src/main/resources/logback.ftgm.xml"
+                                        <copy file="src/main/resources/logback.docker.xml"
                                               tofile="${project.build.outputDirectory}/logback.xml"/>
-                                        <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                       
-                                        <delete file="${project.build.outputDirectory}/logback.ftgm.xml"/>                                       
+                                        <delete file="${project.build.outputDirectory}/logback.docker.xml"/>                                                                            
+                                        <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                                                            
                                     </target>
                                 </configuration>
                             </execution>
@@ -301,7 +318,7 @@
                                         <copy file="src/main/resources/logback.test.xml"
                                               tofile="${project.build.outputDirectory}/logback.xml"/>
                                         <delete file="${project.build.outputDirectory}/logback.test.xml"/>                                       
-                                        <delete file="${project.build.outputDirectory}/logback.ftgm.xml"/>                                       
+                                        <delete file="${project.build.outputDirectory}/logback.docker.xml"/>                                       
                                     </target>
                                 </configuration>
                             </execution>

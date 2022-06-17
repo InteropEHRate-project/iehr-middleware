@@ -2,6 +2,9 @@ package eu.interopehrate.r2d.ehr.workflow;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+
 import org.jeasy.flows.work.DefaultWorkReport;
 import org.jeasy.flows.work.Work;
 import org.jeasy.flows.work.WorkContext;
@@ -10,6 +13,7 @@ import org.jeasy.flows.work.WorkStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.interopehrate.r2d.ehr.Configuration;
+import eu.interopehrate.r2d.ehr.converter.Converter;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
@@ -30,14 +34,19 @@ class RequestConversionWork implements Work {
 	@Override
 	public WorkReport execute(WorkContext workContext) {
 		// Original request
-		EHRRequest ehrRequest = (EHRRequest) workContext.get(EHRRequestProcessor.EHR_REQUEST_KEY);
+		EHRRequest ehrRequest = (EHRRequest) workContext.get(EHRRequestProcessor.REQUEST_KEY);
 		// response produced by EHR
-		EHRResponse ehrResponse = (EHRResponse)workContext.get(EHRRequestProcessor.CDA_DATA_KEY);
+		EHRResponse ehrResponse = (EHRResponse)workContext.get(EHRRequestProcessor.EHR_DATA_KEY);
+		// retriev patiend Id
+		String patientId = (String)workContext.get(EHRRequestProcessor.PATIENT_ID_KEY);
 		
 		// Local conversion
 		if (isLocal(ehrRequest)) {
 			try {
-				EHRResponse convResponse = localConversionService.convert(ehrRequest, ehrResponse);
+				HashMap<String, String> properties = new HashMap<String, String>();
+				properties.put(Converter.PATIENT_ID_KEY, patientId);
+				
+				EHRResponse convResponse = localConversionService.convert(ehrRequest, ehrResponse, properties);
 				workContext.put(EHRRequestProcessor.FHIR_DATA_KEY, convResponse);
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);
 			} catch (Exception | Error e) {
@@ -49,9 +58,12 @@ class RequestConversionWork implements Work {
 		
 		// Remote conversion with IHS
 		else {
+			// response produced by EHR
+			EHRResponse ehrReducedResponse = (EHRResponse)workContext.get(EHRRequestProcessor.EHR_REDUCED_DATA_KEY);
+
 			// #1 submit first request to the IHS Service for requesting a conversion
 			try {
-				ihsService.requestConversion(ehrRequest, ehrResponse);			
+				ihsService.requestConversion(ehrRequest, ehrReducedResponse);			
 			} catch (Exception | Error e) {
 				logger.error("Task completed with error: " + e.getMessage(), e);
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());

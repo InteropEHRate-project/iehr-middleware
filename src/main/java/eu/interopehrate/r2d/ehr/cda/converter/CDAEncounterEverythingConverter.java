@@ -1,10 +1,11 @@
-package eu.interopehrate.r2d.ehr.converter.cda;
+package eu.interopehrate.r2d.ehr.cda.converter;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -28,7 +29,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.parser.IParser;
 import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.EHRMWServer;
@@ -38,7 +38,8 @@ import eu.interopehrate.r2d.ehr.converter.Converter;
 public class CDAEncounterEverythingConverter implements Converter {
 	
 	@Override
-	public void convertToFile(File input, File output) throws Exception {
+	public void convertToFile(File input, File output, 
+			Map<String, String> properties) throws Exception {
 		// #1 Parse XML CDA input file
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
 		builderFactory.setNamespaceAware(true);
