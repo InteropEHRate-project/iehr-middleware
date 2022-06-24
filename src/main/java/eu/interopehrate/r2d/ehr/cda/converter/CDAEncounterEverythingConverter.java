@@ -14,12 +14,16 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
 
+import org.hl7.fhir.r4.model.AllergyIntolerance;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Bundle.BundleType;
+import org.hl7.fhir.r4.model.CarePlan;
 import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Media;
+import org.hl7.fhir.r4.model.Medication;
+import org.hl7.fhir.r4.model.MedicationStatement;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Practitioner;
@@ -38,7 +42,7 @@ import eu.interopehrate.r2d.ehr.converter.Converter;
 public class CDAEncounterEverythingConverter implements Converter {
 	
 	@Override
-	public void convertToFile(File input, File output, 
+	public void convert(File input, File output, 
 			Map<String, String> properties) throws Exception {
 		// #1 Parse XML CDA input file
 		DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -97,13 +101,38 @@ public class CDAEncounterEverythingConverter implements Converter {
 			sectionCode = ((Element)codeNode).getAttribute("code");
 			
 			if ("30954-2".equals(sectionCode)) {
+				// Laboratory Report "Relevant diagnostic tests/laboratory data Narrative"
 				addLaboratoryReportToBundle(sectionNode, bundle, subject, practitioner, encounter);				
 			} else if ("29548-5".equals(sectionCode)) {
+				// Conditions
 				addConditionToBundle(sectionNode, bundle, subject, practitioner, encounter);
-			} if ("62387-6".equals(sectionCode)) {
+			} else if ("62387-6".equals(sectionCode)) {
+				// Image Reports
 				addImageReportsToBundle(sectionNode, bundle, subject, practitioner, encounter);
-			} if ("8716-3".equals(sectionCode)) {
+			} else if ("8716-3".equals(sectionCode)) {
+				// Vital Signs
 				addVitalSignsToBundle(sectionNode, bundle, subject, practitioner, encounter);
+			} else if ("55110-1".equals(sectionCode)) { 
+				//Condition Conclusion
+				addConclusionToBundle(sectionNode, bundle, subject, practitioner, encounter);
+			} else if ("18776-5".equals(sectionCode)) { 
+				// Care Plan "display": "Plan of care note"
+				addCarePlanToBundle(sectionNode, bundle, subject, practitioner, encounter);
+			} else if ("48765-2".equals(sectionCode)) { 
+				// Allergy Intolerance 
+				addAllergyIntoleranceToBundle(sectionNode, bundle, subject, practitioner, encounter);
+			} else if ("29299-5".equals(sectionCode)) { 
+				// Observation Reason
+				addObservationReasonToBundle(sectionNode, bundle, subject, practitioner, encounter);
+			} else if ("29545-1".equals(sectionCode)) {
+				// Physical Observation
+				addPhysicalObservationToBundle(sectionNode, bundle, subject, practitioner, encounter);
+			} else if ("11329-0".equals(sectionCode)) { // Condition Anamnesi
+				// Anamnesi
+				addAnamnesiToBundle(sectionNode, bundle, subject, practitioner, encounter);
+			} else if ("10160-0".equals(sectionCode)) { // Condition Anamnesi
+				// Medication
+				addMedicationToBundle(sectionNode, bundle, subject, practitioner, encounter);
 			} 
 		}
 		
@@ -116,6 +145,65 @@ public class CDAEncounterEverythingConverter implements Converter {
 	}
 	
 	
+	private void addMedicationToBundle(Node sectionNode, Bundle bundle, Patient subject,
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		// "Reason for visit Narrative"
+		MedicationStatement med = CDAConversionUtility.toMedication(sectionNode, subject,
+				practitioner, encounter);
+		bundle.addEntry().setResource(med);
+	}
+	
+	
+	private void addPhysicalObservationToBundle(Node sectionNode, Bundle bundle, Patient subject,
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		// "Reason for visit Narrative"
+		Observation obs = CDAConversionUtility.toPhysicalObservation(sectionNode, 
+				subject, practitioner, encounter);
+		bundle.addEntry().setResource(obs);
+	}
+	
+	
+	private void addObservationReasonToBundle(Node sectionNode, Bundle bundle, Patient subject,
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		// "Physical findings Narrative"
+		Observation reason = CDAConversionUtility.toReason(sectionNode, 
+				subject, practitioner, encounter);
+		bundle.addEntry().setResource(reason);
+	}
+	
+	
+	private void addAnamnesiToBundle(Node sectionNode, Bundle bundle, Patient subject,
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		Condition cond = CDAConversionUtility.toAnamnesi(sectionNode, 
+				subject, practitioner, encounter);
+		bundle.addEntry().setResource(cond);
+	}
+	
+	
+	private void addAllergyIntoleranceToBundle(Node sectionNode, Bundle bundle, Patient subject,
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		AllergyIntolerance ai = CDAConversionUtility.toAllergyIntolerance(sectionNode, 
+				subject, practitioner, encounter);
+		bundle.addEntry().setResource(ai);
+	}
+	
+	
+	private void addCarePlanToBundle(Node sectionNode, Bundle bundle, Patient subject,
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		CarePlan carePlan = CDAConversionUtility.toTreatmentPlan(sectionNode, 
+				subject, practitioner, encounter);
+		bundle.addEntry().setResource(carePlan);
+	}
+	
+	
+	private void addConclusionToBundle(Node sectionNode, Bundle bundle, Patient subject,
+			Practitioner practitioner, Encounter encounter) throws ParseException {
+		Condition cond = CDAConversionUtility.toDiagnosticConclusion(sectionNode, 
+				subject, practitioner, encounter);
+		bundle.addEntry().setResource(cond);
+	}
+	
+	
 	private void addConditionToBundle(Node sectionNode, Bundle bundle, Patient subject,
 			Practitioner practitioner, Encounter encounter) throws ParseException {
 		
@@ -124,8 +212,7 @@ public class CDAEncounterEverythingConverter implements Converter {
 		Condition cond;
 		for (int i=0; i < entries.getLength(); i++) {
 			obsNode = CDAConversionUtility.getChildByName(entries.item(i), "observation");
-			cond = CDAConversionUtility.toCondition(obsNode, subject, practitioner, 
-					encounter.getPeriod().getStart());
+			cond = CDAConversionUtility.toCondition(obsNode, subject, practitioner, encounter);
 			cond.setEncounter(new Reference(encounter));
 			bundle.addEntry().setResource(cond);			
 		}
@@ -145,7 +232,7 @@ public class CDAEncounterEverythingConverter implements Converter {
 		Observation obs;
 		for (int i=0; i < descendants.getLength(); i++) {
 			obsNode = CDAConversionUtility.getChildByName(descendants.item(i), "observation");
-			obs = CDAConversionUtility.toVitalSign(obsNode, effectiveTime, subject, practitioner);
+			obs = CDAConversionUtility.toVitalSign(obsNode, effectiveTime, subject, practitioner, encounter);
 			obs.setEncounter(new Reference(encounter));
 			bundle.addEntry().setResource(obs);
 		}
@@ -164,7 +251,8 @@ public class CDAEncounterEverythingConverter implements Converter {
 		String label = ((Element)descendants.item(0)).getAttribute("displayName");
 		
 		DiagnosticReport labReport = CDAConversionUtility.createLaboratoryReport(
-				subject, effectiveTime, codeSystem, code, label, practitioner, encounter);
+				subject, effectiveTime, codeSystem, code, 
+				label, practitioner, encounter);
 		
 		bundle.addEntry().setResource(labReport);
 
@@ -173,7 +261,7 @@ public class CDAEncounterEverythingConverter implements Converter {
 		Observation obs;
 		for (int i=0; i < descendants.getLength(); i++) {
 			obsNode = CDAConversionUtility.getChildByName(descendants.item(i), "observation");
-			obs = CDAConversionUtility.toLaboratory(obsNode, effectiveTime, subject, practitioner);
+			obs = CDAConversionUtility.toLaboratory(obsNode, effectiveTime, subject, practitioner, labReport);
 			obs.setEncounter(new Reference(encounter));
 			labReport.addResult(new Reference(obs));
 			bundle.addEntry().setResource(obs);
@@ -221,11 +309,11 @@ public class CDAEncounterEverythingConverter implements Converter {
 			obsNode = observations.item(i);
 			valueNode = CDAConversionUtility.getChildByName(obsNode, "value");
 			if (((Element)valueNode).hasAttribute("mediaType")) {
-				Media media = CDAConversionUtility.toMedia(obsNode, subject, practitioner, encounter);
+				Media media = CDAConversionUtility.toMedia(obsNode, subject, practitioner, encounter, imgReport);
 				imgReport.addMedia().setLink(new Reference(media));
 				bundle.addEntry().setResource(media);
 			} else {
-				obs = CDAConversionUtility.toBasicObservation(obsNode, effectiveTime, subject, practitioner);
+				obs = CDAConversionUtility.toBasicObservation(obsNode, effectiveTime, subject, practitioner, imgReport);
 				obs.setEncounter(new Reference(encounter));
 				imgReport.addResult(new Reference(obs));
 				bundle.addEntry().setResource(obs);

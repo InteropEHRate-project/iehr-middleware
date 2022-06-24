@@ -4,11 +4,12 @@ import java.io.File;
 
 import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.image.ImageExtractor;
+import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 
 public class CHUImageExtractor implements ImageExtractor {
 
 	@Override
-	public File createReducedFile(String requestId, String inputFileName) throws Exception {
+	public EHRFileResponse extractImageFromFiles(String requestId, EHRFileResponse fileResponse) throws Exception {
 		// Retrieves storage path from config file
 		String ehrMWStoragePath = Configuration.getDBPath();
 		
@@ -16,14 +17,23 @@ public class CHUImageExtractor implements ImageExtractor {
 		String fileExtension = Configuration.getProperty(Configuration.EHR_FILE_EXT);
 		if (!fileExtension.startsWith("."))
 			fileExtension = "." + fileExtension;
-				
-		// String fileToReduceName = requestId + fileExtension;
-		// Creates input file
-		File fileToReduce = new File(ehrMWStoragePath + inputFileName);
-		File reducedFile = new File(ehrMWStoragePath + requestId + "_reduced" + fileExtension);
+		
+		EHRFileResponse reducedResponse = new EHRFileResponse();
+		reducedResponse.setContentType(fileResponse.getContentType());
+		reducedResponse.setStatus(fileResponse.getStatus());
+		
+		File fileToReduce, reducedFile;
+		String newFileName;
+		for (int i = 0; i < fileResponse.getResponseFileSize(); i++) {
+			fileToReduce = fileResponse.getResponseFile(i);
+			
+			newFileName = fileToReduce.getName().replace(fileExtension, "_reduced");
+			reducedFile = new File(ehrMWStoragePath + newFileName + fileExtension);
+			fileToReduce.renameTo(reducedFile);
 
-		fileToReduce.renameTo(reducedFile);
-		return reducedFile;
+		}
+		
+		return reducedResponse;
 	}
 
 }

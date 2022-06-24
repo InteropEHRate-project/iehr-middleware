@@ -3,6 +3,7 @@ package eu.interopehrate.r2d.ehr.services;
 import java.util.Date;
 
 import eu.interopehrate.r2d.ehr.model.Citizen;
+import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 
 public interface EHRService {
@@ -29,7 +30,7 @@ public interface EHRService {
 	 * @return
 	 * @throws Exception
 	 */
-	EHRResponse executeGetPatientSummary (String theRequestId, 
+	EHRFileResponse executeGetPatientSummary (String theRequestId, 
 			String ehrPatientId) throws Exception;
 
 	
@@ -42,11 +43,12 @@ public interface EHRService {
 	 * @return
 	 * @throws Exception
 	 */
-	EHRResponse executeSearchEncounter(
+	EHRFileResponse executeSearchEncounter(
 			Date theFromDate, 
 			String theRequestId, 
 			String ehrPatientId) throws Exception;
 	
+		
 	/**
 	 * 
 	 * @param theEncounterId
@@ -56,10 +58,8 @@ public interface EHRService {
 	 * @return
 	 * @throws Exception
 	 */
-	EHRResponse executeEncounterEverything(
+	EHRFileResponse executeEncounterEverything(
 			String theEncounterId, 
 			String theRequestId, 
 			String ehrPatientId) throws Exception;
-		
-	
 }

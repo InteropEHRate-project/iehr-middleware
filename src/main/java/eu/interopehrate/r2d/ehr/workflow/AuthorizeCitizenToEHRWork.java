@@ -9,18 +9,23 @@ import org.jeasy.flows.work.WorkReport;
 import org.jeasy.flows.work.WorkStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import eu.interopehrate.r2d.ehr.Configuration;
+import eu.interopehrate.r2d.ehr.EHRContextProvider;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import eu.interopehrate.r2d.ehr.services.EHRService;
 
 class AuthorizeCitizenToEHRWork implements Work {
-	@Autowired(required = true)
-	private EHRService ehrService;
+
 	private final Logger logger = LoggerFactory.getLogger(AuthorizeCitizenToEHRWork.class);
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
+		String beanName = Configuration.getProperty(Configuration.EHR_EHR_SERVICE_BEAN);
+		EHRService ehrService = (EHRService)
+				EHRContextProvider.getApplicationContext().getBean(beanName);
+
 		EHRRequest request = (EHRRequest) workContext.get(EHRRequestProcessor.REQUEST_KEY);
 		//logger.info(String.format("Started Task %s ...", getClass().getSimpleName()));
 	

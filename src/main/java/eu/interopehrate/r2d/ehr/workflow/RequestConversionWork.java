@@ -1,8 +1,5 @@
 package eu.interopehrate.r2d.ehr.workflow;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 
 import org.jeasy.flows.work.DefaultWorkReport;
@@ -10,22 +7,23 @@ import org.jeasy.flows.work.Work;
 import org.jeasy.flows.work.WorkContext;
 import org.jeasy.flows.work.WorkReport;
 import org.jeasy.flows.work.WorkStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.interopehrate.r2d.ehr.Configuration;
+import eu.interopehrate.r2d.ehr.EHRContextProvider;
 import eu.interopehrate.r2d.ehr.converter.Converter;
+import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.r2d.ehr.services.IHSService;
-import eu.interopehrate.r2d.ehr.services.LocalConversionService;
+import eu.interopehrate.r2d.ehr.services.impl.LocalConversionService;
 
 class RequestConversionWork implements Work {
 
-	@Autowired(required = true)
-	private IHSService ihsService;
-	
 	@Autowired(required = true)
 	private LocalConversionService localConversionService;
 	
@@ -33,20 +31,26 @@ class RequestConversionWork implements Work {
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
+		// retrieves IHS service bean
+		String beanName = Configuration.getProperty(Configuration.IHS_SERVICE_BEAN);
+		IHSService ihsService = (IHSService)
+				EHRContextProvider.getApplicationContext().getBean(beanName);
+
 		// Original request
 		EHRRequest ehrRequest = (EHRRequest) workContext.get(EHRRequestProcessor.REQUEST_KEY);
-		// response produced by EHR
-		EHRResponse ehrResponse = (EHRResponse)workContext.get(EHRRequestProcessor.EHR_DATA_KEY);
-		// retriev patiend Id
+		// retrieve patiend Id
 		String patientId = (String)workContext.get(EHRRequestProcessor.PATIENT_ID_KEY);
-		
+		// response produced by EHR and reduced by Image Extractor
+		EHRFileResponse ehrReducedResponse = (EHRFileResponse)workContext.get(
+				EHRRequestProcessor.EHR_REDUCED_DATA_KEY);
+
 		// Local conversion
 		if (isLocal(ehrRequest)) {
 			try {
 				HashMap<String, String> properties = new HashMap<String, String>();
 				properties.put(Converter.PATIENT_ID_KEY, patientId);
 				
-				EHRResponse convResponse = localConversionService.convert(ehrRequest, ehrResponse, properties);
+				EHRResponse convResponse = localConversionService.convert(ehrRequest, ehrReducedResponse, properties);
 				workContext.put(EHRRequestProcessor.FHIR_DATA_KEY, convResponse);
 				return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);
 			} catch (Exception | Error e) {
@@ -58,9 +62,6 @@ class RequestConversionWork implements Work {
 		
 		// Remote conversion with IHS
 		else {
-			// response produced by EHR
-			EHRResponse ehrReducedResponse = (EHRResponse)workContext.get(EHRRequestProcessor.EHR_REDUCED_DATA_KEY);
-
 			// #1 submit first request to the IHS Service for requesting a conversion
 			try {
 				ihsService.requestConversion(ehrRequest, ehrReducedResponse);			

@@ -37,10 +37,10 @@ public class DicomAnonymizer {
 	
 	private void anonymizeDicomDirFolder(File dicomStudyDir, DeIdentifier deidentifier) throws Exception {
 		// #1 folder containing source images to be anonymized
-		File dicomDir = new File(dicomStudyDir.getAbsolutePath() + DICOM_STANDARD_FOLDER);
+		File dicomDir = new File(dicomStudyDir.getAbsolutePath() + "/" + DICOM_STANDARD_FOLDER);
 		
 		// #2 creates the folder for anonymized images
-		File anonymizedDicomDir = new File(dicomStudyDir.getAbsolutePath() + DICOM_ANONYMIZED_FOLDER);
+		File anonymizedDicomDir = new File(dicomStudyDir.getAbsolutePath() + "/" + DICOM_ANONYMIZED_FOLDER);
 		anonymizedDicomDir.mkdirs();
 		
 		// #3 anonymize each file
@@ -55,7 +55,7 @@ public class DicomAnonymizer {
 		FileUtils.deleteDirectory(dicomDir);
 		
 		// #5 renames working folder to DICOM 
-		anonymizedDicomDir.renameTo(new File(dicomStudyDir.getAbsolutePath() + DICOM_STANDARD_FOLDER));
+		anonymizedDicomDir.renameTo(new File(dicomStudyDir.getAbsolutePath() + "/" + DICOM_STANDARD_FOLDER));
 	}
 	
 	

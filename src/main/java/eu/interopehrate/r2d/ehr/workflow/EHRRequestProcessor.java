@@ -119,36 +119,47 @@ public class EHRRequestProcessor /* implements Runnable */ {
 		// starts the workflow
 		logger.info(String.format("Starting processing of request: %s", ehrRequest.getR2dRequestId()));
 		MemoryLogger.logMemory();
-
 		workFlowEngine.run(mainWorkflow, workContext);
 		
-		// final log message
+		// checks outcome of the processing
 		String errorMsg = (String) workContext.get(ERROR_MESSAGE_KEY);
 		if (errorMsg != null) 
 			logger.error("Processing of request: {} completed with ERROR: {}", ehrRequest.getR2dRequestId(), errorMsg);
 		else
 			logger.info("Processing of request: {} completed with SUCCESS", ehrRequest.getR2dRequestId());
 		
-		// delete tmp file
+		
+		// delete tmp files form EHRMW folder 
 		Boolean deleteTempFiles = Boolean.valueOf(Configuration.getProperty(Configuration.EHR_DELETE_TEMP_FILES));
-		if (deleteTempFiles)
-			deleteTempFiles();
-
+		if (deleteTempFiles) {
+			try {
+				deleteImageExtractionTmpFiles();
+			} catch (IOException e) {
+    			logger.warn("Not able to delete tmp files");
+			}
+		}
+				
 		// prints memory
 		MemoryLogger.logMemory();
 	}
 	
 	
-	private void deleteTempFiles() {
-		String ehrFileName = String.format("%s%s.%s", Configuration.getDBPath(), 
-				ehrRequest.getR2dRequestId(),
-				Configuration.getProperty(Configuration.EHR_FILE_EXT));
-		Path filePath = Paths.get(ehrFileName);
-		try {
-			Files.deleteIfExists(filePath);
-		} catch (IOException e) {
-			logger.warn("Error while deleting file {}", ehrFileName);
-		}
+	private void deleteImageExtractionTmpFiles() throws IOException {
+		if (logger.isDebugEnabled())
+			logger.debug("Deleting temporary EHR files for image extraction....");
+
+		Path filePath = Paths.get(Configuration.getDBPath());
+		final String requestId = ehrRequest.getR2dRequestId();
+		Files.walk(filePath)
+    	.filter(Files::isRegularFile)
+    	.filter(tmpFile -> tmpFile.getName(tmpFile.getNameCount() - 1).toString().startsWith(requestId))
+    	.forEach(tmpFile -> {
+    		try {
+    			Files.deleteIfExists(tmpFile);
+    		} catch (Exception ioe) {
+    			logger.warn("Not able to delete tmp file {}", tmpFile.toString());
+    		}
+    	});
 	}
 
 }

@@ -1,8 +1,15 @@
 package eu.interopehrate.r2d.ehr.image;
 
-import java.io.File;
+import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 
 public interface ImageExtractor {
 
-	File createReducedFile(String requestId, String inputFileName) throws Exception;
+	/**
+	 * 
+	 * @param requestId
+	 * @param fileResponse
+	 * @return
+	 * @throws Exception
+	 */
+	EHRFileResponse extractImageFromFiles(String requestId, EHRFileResponse fileResponse) throws Exception;
 }

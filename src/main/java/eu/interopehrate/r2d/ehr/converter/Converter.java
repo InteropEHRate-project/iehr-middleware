@@ -15,7 +15,7 @@ public interface Converter {
 	 * 
 	 * @throws Exception
 	 */
-	public void convertToFile(File input, File output, 
+	public void convert(File input, File output, 
 			Map<String, String> properties) throws Exception;
 	
 }

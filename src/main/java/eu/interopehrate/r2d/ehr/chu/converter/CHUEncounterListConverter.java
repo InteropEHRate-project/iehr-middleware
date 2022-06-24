@@ -28,7 +28,7 @@ import eu.interopehrate.r2d.ehr.converter.Converter;
 public class CHUEncounterListConverter implements Converter {
 
 	@Override
-	public void convertToFile(File input, File output, 
+	public void convert(File input, File output, 
 			Map<String, String> properties) throws Exception {
 		
 		// #1 Creates resulting Bundle

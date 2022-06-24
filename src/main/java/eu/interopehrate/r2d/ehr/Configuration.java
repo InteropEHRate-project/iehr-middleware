@@ -16,6 +16,8 @@ public final class Configuration {
 	public static final String IHS_ENDPOINT = "ihs.endpoint";
 	public static final String IHS_TIMEOUT = "ihs.timeoutInMinutes";
 	public static final String IHS_MAPPING_CODES = "ihs.mapping.codes";
+	public static final String IHS_LANGUAGE = "ihs.language";
+	public static final String IHS_SERVICE_BEAN = "ihs.ihsService.bean";
 
 	public static final String EHR_PROTOCOL = "ehr.protocol";
 	public static final String EHR_HOST = "ehr.host";
@@ -28,7 +30,9 @@ public final class Configuration {
 	public static final String EHR_DELETE_TEMP_FILES = "ehr.deleteTmpFiles";
 	public static final String EHR_HEADER = "ehr.header";
 	public static final String EHR_LANGUAGE = "ehr.language";
-	public static final String EHR_IMAGE_EXTRACTOR = "ehr.imageExtractor.bean";
+	public static final String EHR_ANONYMIZE_IMAGES = "ehr.anonymizeImage";
+	public static final String EHR_IMAGE_EXTRACTOR_BEAN = "ehr.imageExtractor.bean";
+	public static final String EHR_EHR_SERVICE_BEAN = "ehr.ehrService.bean";
 	
 	private static Properties config = new Properties();
 	

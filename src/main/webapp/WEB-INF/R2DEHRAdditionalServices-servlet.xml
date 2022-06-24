@@ -15,18 +15,18 @@
 
 	<context:component-scan base-package="eu.interopehrate.r2d.ehr" />
 	
-	<!--  bean that acts as proxy server for internal or external service -->
-	<bean name="ehrService" class="eu.interopehrate.r2d.ehr.services.RestEHRService" scope="prototype" />	
-	<bean name="ihsService" class="eu.interopehrate.r2d.ehr.services.RestIHSService" scope="prototype" />	
-	<bean name="r2dAccessService" class="eu.interopehrate.r2d.ehr.services.RestR2DAccessService" scope="prototype" />	
-	<bean name="localConversionService" class="eu.interopehrate.r2d.ehr.services.LocalConversionService" scope="prototype" />	
+	<!--  default implementation of beans that acts as proxy server for internal or external service -->
+	<bean name="fileSystemEhrService" class="eu.interopehrate.r2d.ehr.services.impl.FileSystemEHR" scope="prototype" />	
+	<bean name="ehrService" class="eu.interopehrate.r2d.ehr.services.impl.RestEHRService" scope="prototype" />	
+	<bean name="ihsService" class="eu.interopehrate.r2d.ehr.services.impl.RestIHSService" scope="prototype" />	
+	<bean name="r2dAccessService" class="eu.interopehrate.r2d.ehr.services.impl.RestR2DAccessService" scope="prototype" />	
+	<bean name="localConversionService" class="eu.interopehrate.r2d.ehr.services.impl.LocalConversionService" scope="prototype" />	
 
-	<!-- Bean providing concrete HTTP transport layer -->
-	<bean name="httpInvoker" class="eu.interopehrate.r2d.ehr.services.ApacheHttpInvoker" scope="prototype" />
+	<!-- Bean providing concrete HTTP transport layer based on Apache HttplClient -->
+	<bean name="httpInvoker" class="eu.interopehrate.r2d.ehr.services.impl.ApacheHttpInvoker" scope="prototype" />
 	
 	<!-- bean for workflow execution -->
 	<bean name="requestController" class="eu.interopehrate.r2d.ehr.workflow.EHRRequestController" scope="singleton" />
-
 	<bean name="AuthorizeCitizenToEHRWork" class="eu.interopehrate.r2d.ehr.workflow.AuthorizeCitizenToEHRWork" scope="prototype" />
 	<bean name="RequestToEHRWork" class="eu.interopehrate.r2d.ehr.workflow.RequestToEHRWork" scope="prototype" />
 	<bean name="ExtractImagesWork" class="eu.interopehrate.r2d.ehr.workflow.ExtractImageWork" scope="prototype" />
@@ -35,15 +35,18 @@
 	<bean name="SendFailureToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendFailureToR2DWork" scope="prototype" />
 	<bean name="SendSuccessToR2DWork" class="eu.interopehrate.r2d.ehr.workflow.SendSuccessToR2DWork" scope="prototype" />
 	
-	<!-- Bean for CDA data management -->
+	<!-- Customized beans for CDA/FTGM request management -->
 	<bean name="cdaEncounterListConverter" class="eu.interopehrate.r2d.ehr.cda.converter.CDAEncounterListConverter" scope="prototype" />	
 	<bean name="cdaEncounterEverythingConverter" class="eu.interopehrate.r2d.ehr.cda.converter.CDAEncounterEverythingConverter" scope="prototype" />	
 	<bean name="cdaImageExtractor" class="eu.interopehrate.r2d.ehr.cda.CDAImageExtractor" scope="prototype" />
+	<bean name="ftgmIHSService" class="eu.interopehrate.r2d.ehr.ftgm.FTGMIHSService" scope="prototype" />	
+	<bean name="ftgmEHRService" class="eu.interopehrate.r2d.ehr.ftgm.FTGMEHRService" scope="prototype" />	
 
-	<!-- Bean for CHU data management -->
+	<!-- Customized beans for CHU request management -->
 	<bean name="chuEncounterListConverter" class="eu.interopehrate.r2d.ehr.chu.converter.CHUEncounterListConverter" scope="prototype" />	
 	<bean name="chuImageExtractor" class="eu.interopehrate.r2d.ehr.chu.CHUImageExtractor" scope="prototype" />
 	
+	<!-- Thread Pool -->
 	<bean id="executor"
 		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
 		<property name="corePoolSize" value="5" />

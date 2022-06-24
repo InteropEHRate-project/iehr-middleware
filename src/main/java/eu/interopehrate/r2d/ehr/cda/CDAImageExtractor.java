@@ -25,6 +25,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.image.ImageConstants;
 import eu.interopehrate.r2d.ehr.image.ImageExtractor;
+import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 
 public class CDAImageExtractor extends DefaultHandler implements ImageExtractor {
 	private static final double KILOBYTE = 1024D;
@@ -55,7 +56,7 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 	private Encoder encoder;
 
 	@Override
-	public File createReducedFile(String requestId, String inputFileName) throws Exception {
+	public EHRFileResponse extractImageFromFiles(String requestId, EHRFileResponse fileResponse) throws Exception {
 		this.requestId = requestId;
 
 		// Retrieves storage path from config file
@@ -68,17 +69,24 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 				
 		// String fileToReduceName = requestId + fileExtension;
 		// Creates input file
-		File fileToReduce = new File(ehrMWStoragePath + inputFileName);
-		File reducedFile = new File(ehrMWStoragePath + requestId + "_reduced" + fileExtension);
-		
+		File fileToReduce = fileResponse.getFirstResponseFile();
 		// Checks if the file contains DICOM images
 		if (!needsToExtractImages(fileToReduce.getAbsolutePath())) {
 			logger.info("File: {} does not need to be reduced...", 
-					inputFileName);
+					fileToReduce.getName());
+			
+			return fileResponse;
 			// only renames the input file
-			fileToReduce.renameTo(reducedFile);
-			return reducedFile;
+			// fileToReduce.renameTo(reducedFile);
+			// return reducedResponse;
 		}
+
+		// creates reduced file name
+		File reducedFile = new File(ehrMWStoragePath + requestId + "_reduced" + fileExtension);
+		EHRFileResponse reducedResponse = new EHRFileResponse();
+		reducedResponse.setContentType(fileResponse.getContentType());
+		reducedResponse.setStatus(fileResponse.getStatus());
+		reducedResponse.addResponseFile(reducedFile);
 
 		// retrieves Base64Encoder
 		encoder = Base64.getEncoder();
@@ -91,12 +99,12 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 			factory.setValidating(true);
 			SAXParser saxParser = factory.newSAXParser();
 			logger.info("Starting reduction of file: {}, inital size: {} Kb", 
-					inputFileName, NumberFormat.getInstance().format(fileToReduce.length() / KILOBYTE));
+					fileToReduce.getName(), NumberFormat.getInstance().format(fileToReduce.length() / KILOBYTE));
 			saxParser.parse(input, this);
 			logger.info("Reduction of file ended, current size: {} Kb", 
 					NumberFormat.getInstance().format(reducedFile.length() / KILOBYTE));
 			
-			return reducedFile;
+			return reducedResponse;
 		} catch (Exception e) {
 			throw e;
 		} 

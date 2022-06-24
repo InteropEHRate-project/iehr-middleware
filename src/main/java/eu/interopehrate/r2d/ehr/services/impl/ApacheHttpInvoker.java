@@ -1,4 +1,4 @@
-package eu.interopehrate.r2d.ehr.services;
+package eu.interopehrate.r2d.ehr.services.impl;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.interopehrate.r2d.ehr.Configuration;
+import eu.interopehrate.r2d.ehr.services.HeaderParam;
+import eu.interopehrate.r2d.ehr.services.HttpInvoker;
 
 public class ApacheHttpInvoker implements HttpInvoker {
 	private final Logger logger = LoggerFactory.getLogger(ApacheHttpInvoker.class);

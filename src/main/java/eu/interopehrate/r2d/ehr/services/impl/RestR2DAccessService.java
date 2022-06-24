@@ -1,4 +1,4 @@
-package eu.interopehrate.r2d.ehr.services;
+package eu.interopehrate.r2d.ehr.services.impl;
 
 import java.net.URI;
 import java.util.Base64;
@@ -10,6 +10,9 @@ import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.security.SecurityConstants;
+import eu.interopehrate.r2d.ehr.services.HeaderParam;
+import eu.interopehrate.r2d.ehr.services.HttpInvoker;
+import eu.interopehrate.r2d.ehr.services.R2DAccessService;
 
 public class RestR2DAccessService implements R2DAccessService {
 

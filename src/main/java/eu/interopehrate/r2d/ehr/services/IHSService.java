@@ -1,5 +1,6 @@
 package eu.interopehrate.r2d.ehr.services;
 
+import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 
@@ -12,7 +13,7 @@ public interface IHSService {
 	 * @param cdaBundle
 	 * @throws Exception
 	 */
-	void requestConversion(EHRRequest ehrRequest, EHRResponse ehrResponse) throws Exception;
+	void requestConversion(EHRRequest ehrRequest, EHRFileResponse ehrResponse) throws Exception;
 	
 	/**
 	 * Involkes the service of EHR to get the result of a previously invoked conversion
