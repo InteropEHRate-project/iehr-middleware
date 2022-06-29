@@ -222,6 +222,11 @@
                                 </goals>
                                 <configuration>
                                     <target>
+                                   		<delete file="${project.build.outputDirectory}/patient0/7137365.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0/7137380.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0/EncounterList.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0"/>
+
                                     	<!-- application.properties file -->
                                         <delete file="${project.build.outputDirectory}/application.properties"/>
                                         <copy file="src/main/resources/application.chu.properties"
@@ -263,6 +268,11 @@
                                 </goals>
                                 <configuration>
                                     <target>
+                                   		<delete file="${project.build.outputDirectory}/patient0/7137365.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0/7137380.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0/EncounterList.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0"/>
+                                    	
                                     	<!-- application.properties file -->
                                         <delete file="${project.build.outputDirectory}/application.properties"/>
                                         <copy file="src/main/resources/application.ftgm.properties"
@@ -305,6 +315,11 @@
                                 </goals>
                                 <configuration>
                                     <target>
+                                   		<delete file="${project.build.outputDirectory}/patient0/7137365.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0/7137380.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0/EncounterList.xml"/>
+                                   		<delete file="${project.build.outputDirectory}/patient0"/>
+
                                     	<!-- application.properties file -->
                                         <delete file="${project.build.outputDirectory}/application.properties"/>
                                         <copy file="src/main/resources/application.test.properties"

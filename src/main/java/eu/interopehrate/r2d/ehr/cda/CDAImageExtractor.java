@@ -41,6 +41,7 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 	@SuppressWarnings("unused")
 	private Locator locator;
 	private boolean parsingValue = false;
+	private boolean parsingText = false;
 	private boolean foundMediaType = false;
 	private boolean placeholderWritten = true;
 	private int imageCounter;
@@ -162,6 +163,9 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 		if ("value".equals(qName))
 			this.parsingValue = true;
 		
+		if ("text".equals(qName)) 
+			this.parsingText = true;
+		
 		reducedFileWriter.print("<" + qName);
 		if (namespaceBegin) {
 			reducedFileWriter.print(" xmlns:" + currentNamespace + "=\"" + currentNamespaceUri + "\"");
@@ -191,7 +195,8 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 				imageFileWriter.close();
 				imageFileWriter = null;
 			}
-		}
+		} else if ("text".equals(qName)) 
+			parsingText = false;
 	}
 
 	
@@ -218,8 +223,15 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 			
 		} else {
 			StringBuilder sb = new  StringBuilder();
-			for (int i = start; i < start + length; i++)
-				sb.append(ch[i]);
+			for (int i = start; i < start + length; i++) {
+				if (parsingText) {
+					if (ch[i] == '\n')
+						sb.append(" ");
+					else
+						sb.append(ch[i]);						
+				} else
+					sb.append(ch[i]);
+			}
 			
 			reducedFileWriter.print(StringEscapeUtils.escapeXml11(sb.toString()));						
 		}

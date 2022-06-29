@@ -44,7 +44,7 @@ public class CHUEncounterListConverter implements Converter {
 		Identifier idf = new Identifier();
 		idf.setId(properties.get(Converter.PATIENT_ID_KEY));
 		p.addIdentifier(idf);
-		bundle.addEntry().setResource(p);
+		// bundle.addEntry().setResource(p);
 
 		// Parsing input file
 		Gson gson = new Gson();

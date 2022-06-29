@@ -3,6 +3,8 @@ package eu.interopehrate.r2d.ehr.services.impl;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.text.StringTokenizer;
@@ -103,7 +105,7 @@ public class RestIHSService implements IHSService {
 		try {
 			final File out = new File(storagePath + ehrRequest.getR2dRequestId() + FILE_EXT);
 			int returnCode = httpInvoker.executeGet(
-					new URI(serviceURL.toString()), 
+					new URI(URLEncoder.encode(serviceURL.toString(), StandardCharsets.UTF_8.toString())), 
 					out,
 					new HeaderParam("Accept", ContentType.APPLICATION_JSON.toString()));
 			
@@ -126,7 +128,7 @@ public class RestIHSService implements IHSService {
 	}
 	
 	/*
-	 * Determins what parameters must be sento to IHS to request the conversion 
+	 * Determines what parameters must be sent to IHS to request the conversion 
 	 * of a file
 	 */
 	private String detectConversionTarget(EHRRequest ehrRequest, File ehrFile) throws Exception {

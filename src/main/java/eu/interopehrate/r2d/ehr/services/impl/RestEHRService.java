@@ -8,6 +8,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -15,6 +17,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.http.HttpStatus;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -123,7 +126,7 @@ public class RestEHRService implements EHRService {
 		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
 		URI serviceURI = createServiceURI(GET_PATIENT_SUMMARY_SERVICE_NAME, servicePath);
 		
-		// #3 invokes service
+		// #3 invokes service		
 		return downloadFileFromEHR(serviceURI, theRequestId);
 	}
 
@@ -167,7 +170,6 @@ public class RestEHRService implements EHRService {
 		EHRFileResponse individualItemResponse;
 		for (EncounterEverythingItem item : items) {
 			logger.debug("Requesting element '{}' of encounter {}", item.getType(), theEncounterId);
-			/*
 			individualItemResponse = downloadFileFromEHR(new URI(item.getUrl()), theRequestId);
 			if (individualItemResponse.getStatus() == EHRResponseStatus.FAILED) {
 				encounterEverythingResponse.setMessage(individualItemResponse.getMessage());
@@ -176,12 +178,8 @@ public class RestEHRService implements EHRService {
 			} else {
 				encounterEverythingResponse.addResponseFile(individualItemResponse.getResponseFile(0));
 			}
-			*/
 		}
-		// TO BE REMOVED
-		encounterEverythingResponse.setStatus(EHRResponseStatus.FAILED);
-		
-		// encounterEverythingResponse.setStatus(EHRResponseStatus.COMPLETED);
+		encounterEverythingResponse.setStatus(EHRResponseStatus.COMPLETED);
 		return encounterEverythingResponse;
 	}
 	
@@ -197,7 +195,8 @@ public class RestEHRService implements EHRService {
 		// #2 placeholders replacement
 		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
 		servicePath = servicePath.replace(ENCOUNTER_ID_PLACEHOLDER, theEncounterId);
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
+		final String encodedServicePath = URLEncoder.encode(servicePath, StandardCharsets.UTF_8.toString());
+		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, encodedServicePath);
 		
 		// invokes REST service
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
