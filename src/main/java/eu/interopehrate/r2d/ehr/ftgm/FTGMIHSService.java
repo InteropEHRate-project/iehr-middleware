@@ -8,6 +8,18 @@ import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.services.impl.RestIHSService;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: specific implementation of the IHSService for FTGM.
+ * It is a subclass of the RestIHSService, this class overrides methods
+ * used for inspecting the received file in order to determine what it 
+ * contains and how it should be converted by the IHS. 
+ * 
+ * When requesting encounter everything to the EHR of FTGM it will always
+ * return a single CDA file structured to represent a Medical Visit document.
+ */
 public class FTGMIHSService extends RestIHSService {
 
 	
@@ -19,7 +31,7 @@ public class FTGMIHSService extends RestIHSService {
 	 * 
 	 * The list of codes to be searched is stored in the configuration file
 	 */
-	protected String detectConversionTargetForEncounterEverything(EHRRequest ehrRequest, 
+	protected String detectResourceNameForEncounterEverything(EHRRequest ehrRequest, 
 			File ehrFile) throws Exception {
 		StringTokenizer codes = new StringTokenizer(Configuration.getProperty(Configuration.IHS_MAPPING_CODES), ";");
 		StringBuffer paramString = new StringBuffer();		
@@ -40,6 +52,18 @@ public class FTGMIHSService extends RestIHSService {
 		}
 		
 		return paramString.toString();
+	}
+	
+	
+	/**
+	 * 
+	 * @param ehrRequest
+	 * @param ehrFile
+	 * @return
+	 * @throws Exception
+	 */
+	protected String getMimeTypeForFile(EHRRequest ehrRequest, File ehrFile) throws Exception {
+		return Configuration.getProperty(Configuration.EHR_MIME);
 	}
 	
 }

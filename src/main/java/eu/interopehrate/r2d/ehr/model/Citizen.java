@@ -3,6 +3,13 @@ package eu.interopehrate.r2d.ehr.model;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: This class contains the personal information of the
+ * authenticated citizen, retireved by the eIDAS token.
+ */
 public class Citizen {
 
 	public String firstName;

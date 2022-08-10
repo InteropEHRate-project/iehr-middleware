@@ -15,6 +15,13 @@ import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.r2d.ehr.security.SecurityConstants;
 import eu.interopehrate.r2d.ehr.workflow.EHRRequestController;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: FHIR provider for the Patient resource.
+ */
+
 @Service
 public class PatientResourceProvider implements IResourceProvider {
 

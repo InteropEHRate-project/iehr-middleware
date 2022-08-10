@@ -11,9 +11,26 @@ import org.slf4j.LoggerFactory;
 import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
-import eu.interopehrate.r2d.ehr.services.EncounterEverythingItem;
+import eu.interopehrate.r2d.ehr.model.EncounterEverythingItem;
 import eu.interopehrate.r2d.ehr.services.impl.RestEHRService;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Ad Hoc implementation of the RestEHRService for the EHR 
+ * of FTGM. 
+ * 
+ *  By default, when requesting the encounter everything, the EHR should reply 
+ *  with a list of items (composed by a type and a URL), where each one represent 
+ *  a portion of the health data produced during the encounter. The EHR of FTGM does 
+ *  not do this, when requesting the encounter everything, it returns direclty 
+ *  the CDA file containing all data produced during the requested encounter.
+ *  
+ *  So this subclass of RestEHRService simulates that also the encounter everything 
+ *  returns a list containing always 1 item.
+ *
+ */
 public class FTGMEHRService extends RestEHRService {
 	private static final Logger logger = LoggerFactory.getLogger(FTGMEHRService.class);
 
@@ -36,7 +53,7 @@ public class FTGMEHRService extends RestEHRService {
 		EHRFileResponse individualItemResponse;
 		for (EncounterEverythingItem item : items) {
 			logger.debug("Requesting element '{}' of encounter {}", item.getType(), theEncounterId);
-			individualItemResponse = downloadFileFromEHR(new URI(item.getUrl()), theRequestId);
+			individualItemResponse = downloadFileFromEHR(new URI(item.getUri()), theRequestId);
 			if (individualItemResponse.getStatus() == EHRResponseStatus.FAILED) {
 				encounterEverythingResponse.setMessage(individualItemResponse.getMessage());
 				encounterEverythingResponse.setStatus(EHRResponseStatus.FAILED);
@@ -61,12 +78,12 @@ public class FTGMEHRService extends RestEHRService {
 		// #2 placeholders replacement
 		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
 		servicePath = servicePath.replace(ENCOUNTER_ID_PLACEHOLDER, theEncounterId);
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
+		URI serviceURI = createServiceURI(servicePath);
 		
 		EncounterEverythingItem item = new EncounterEverythingItem();
 		item.setType("whole");
 		item.setDescription("Entire content of Encounter " + theEncounterId);
-		item.setUrl(serviceURI.toString());
+		item.setUri(serviceURI.toString());
 
 		List<EncounterEverythingItem> items = new ArrayList<EncounterEverythingItem>();
 		items.add(item);

@@ -24,6 +24,20 @@ import eu.interopehrate.r2d.ehr.providers.PatientResourceProvider;
 import eu.interopehrate.r2d.ehr.security.R2DRequestValidator;
 import eu.interopehrate.r2d.ehr.workflow.EHRRequestController;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: main class of the EHRMWServer, it extends the RestfulServer
+ * defined by HAPI. 
+ * 
+ * 1) This class loads the 2 FHIR Resource Providers that compose the EHR Middleware:
+ * 		1) Patient resource provider
+ * 		2) Encounter resource provider
+ * 
+ * This class is declared in the web.xml as one of the Servlet that must be loaded at start up.
+ * 
+ */
 public class EHRMWServer extends RestfulServer {
 
 	public static FhirContext FHIR_CONTEXT;

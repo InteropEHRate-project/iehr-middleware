@@ -13,6 +13,14 @@ import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.services.R2DAccessService;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Implementation of a Work class to handle the activity 
+ * to notify the R2DAccess Server that a workflow ended with success.
+ */
+
 public class SendSuccessToR2DWork implements Work {
 	
 	@Autowired(required = true)

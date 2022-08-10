@@ -4,7 +4,7 @@ package eu.interopehrate.r2d.ehr.security;
  *      Author: Engineering Ingegneria Informatica
  *     Project: InteropEHRate - www.interopehrate.eu
  *     
- *     Security constants
+ *     Description: Security constants
  */
 
 public final class SecurityConstants {

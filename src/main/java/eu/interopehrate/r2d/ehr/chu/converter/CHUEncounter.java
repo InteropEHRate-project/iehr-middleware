@@ -1,5 +1,12 @@
 package eu.interopehrate.r2d.ehr.chu.converter;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: pojo class used to represent an Encounter according to 
+ * the way CHU represent it. 
+ */
 public class CHUEncounter {
 
 	private String id;

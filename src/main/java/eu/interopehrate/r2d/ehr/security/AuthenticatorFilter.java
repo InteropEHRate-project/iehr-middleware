@@ -18,6 +18,22 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Optional;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: A simple security filter authenticating requests
+ * send to the EHR Middleware. 
+ * 
+ * The EHR Middleware is executed in a private network, is not accessible
+ * from the Internet and receives requests only from the R2D Access Server.
+ * This is the reason why it adopts a weak authentication policy based only
+ * Basic Http Authentication scheme.
+ * 
+ * This class must be considered as specific only for the Pilot Applications
+ * of the the InteropEHRate project. 
+ */
+
 public class AuthenticatorFilter implements Filter {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticatorFilter.class);
 	

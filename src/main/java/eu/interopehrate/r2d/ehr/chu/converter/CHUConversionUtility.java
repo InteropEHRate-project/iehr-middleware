@@ -3,6 +3,7 @@ package eu.interopehrate.r2d.ehr.chu.converter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
+import org.hl7.fhir.r4.model.CodeableConcept;
 import org.hl7.fhir.r4.model.Coding;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Encounter.EncounterStatus;
@@ -15,6 +16,12 @@ import org.hl7.fhir.r4.model.Reference;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import eu.interopehrate.r2d.ehr.Configuration;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: utility class for locally converting health data from CHU
+ */
 public class CHUConversionUtility {
 
 	// 2022-01-01
@@ -47,7 +54,11 @@ public class CHUConversionUtility {
 				TemporalPrecisionEnum.DAY);
 		e.setPeriod(period);
 		
-		// new Coding("http://terminology.hl7.org/CodeSystem/service-type", "AMB", "ambulatory");
+		// serviceType
+		if ("5".equals(chuEnc.getType())) {
+			Coding coding = new Coding("http://terminology.hl7.org/CodeSystem/service-type", "165", "Cardiology");
+			e.setServiceType(new CodeableConcept(coding));
+		} 
 		
 		// subject
 		e.setSubject(new Reference(subject));

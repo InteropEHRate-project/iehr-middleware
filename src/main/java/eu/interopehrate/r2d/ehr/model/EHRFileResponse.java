@@ -4,6 +4,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: this class represent a list of responses produced during 
+ * the processing of an instance of EHRRequest. In this case the
+ * response is stored in list of files.
+ * 
+ * @SeeAlso: EHRResponse.java. 
+ */
 public class EHRFileResponse extends EHRResponse {
 	
 	private List<File> fileList = new ArrayList<File>();

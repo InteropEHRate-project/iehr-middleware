@@ -22,7 +22,6 @@ import org.hl7.fhir.r4.model.HumanName;
 import org.hl7.fhir.r4.model.Identifier;
 import org.hl7.fhir.r4.model.Media;
 import org.hl7.fhir.r4.model.Media.MediaStatus;
-import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationStatement;
 import org.hl7.fhir.r4.model.MedicationStatement.MedicationStatementStatus;
 import org.hl7.fhir.r4.model.Meta;
@@ -41,6 +40,13 @@ import org.w3c.dom.NodeList;
 import ca.uhn.fhir.model.api.TemporalPrecisionEnum;
 import eu.interopehrate.r2d.ehr.Configuration;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: utility class for converting the several types of health
+ * data from XML/CDA to FHIR.
+ */
 public class CDAConversionUtility {
 	public static final String HTTP_UNITSOFMEASURE_ORG = "http://unitsofmeasure.org";
 	

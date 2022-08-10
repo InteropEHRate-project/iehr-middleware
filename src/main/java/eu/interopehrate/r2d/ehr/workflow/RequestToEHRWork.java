@@ -18,11 +18,22 @@ import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.r2d.ehr.services.EHRService;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Implementation of a Work class to handle the activity 
+ * to download data from EHR.
+ */
+
 class RequestToEHRWork implements Work {	
 	private final Logger logger = LoggerFactory.getLogger(RequestToEHRWork.class);
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
+		if (logger.isDebugEnabled())
+			logger.debug("Starting Task: 'Download of data from EHR'");
+
 		// retrieves EHR service bean
 		String beanName = Configuration.getProperty(Configuration.EHR_EHR_SERVICE_BEAN);
 		EHRService ehrService = (EHRService)
@@ -78,7 +89,7 @@ class RequestToEHRWork implements Work {
 			logger.error(String.format("Task '%s' completed with error: %s", getClass().getSimpleName() ,e.getMessage()), e);
 			workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 			return new DefaultWorkReport(WorkStatus.FAILED, workContext);
-		}		
+		}
 	}
 
 }

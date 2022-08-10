@@ -16,6 +16,17 @@ import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import eu.interopehrate.r2d.ehr.model.R2DOperation;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Some files downloaded from the EHR are converted locally,
+ * without using the IHS service. The local conversion can be activated for testing purposes
+ * or for some very simple types of data that do not require the complex conversion policies
+ * adopted by the IHS. For instance, the list of Encounter, is always converted locally so that
+ * it is very fast.
+ */
+
 public class LocalConversionService {
 
 	private static final String FILE_EXT = ".json";

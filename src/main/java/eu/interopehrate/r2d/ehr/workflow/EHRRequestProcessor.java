@@ -4,15 +4,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.Executors;
 
 import org.jeasy.flows.engine.WorkFlowEngine;
 import org.jeasy.flows.engine.WorkFlowEngineBuilder;
 import org.jeasy.flows.work.Work;
 import org.jeasy.flows.work.WorkContext;
+import org.jeasy.flows.work.WorkReport;
 import org.jeasy.flows.work.WorkReportPredicate;
 import org.jeasy.flows.workflow.ConditionalFlow;
-import org.jeasy.flows.workflow.ParallelFlow;
 import org.jeasy.flows.workflow.WorkFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +20,20 @@ import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.EHRContextProvider;
 import eu.interopehrate.r2d.ehr.MemoryLogger;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
+
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Processor class that executes the overall workflow for 
+ * handling a request coming from the R2D Access Server. The workflow is
+ * composed by the following activities:
+ * 1) Authenticate to EHR
+ * 2) Download data from EHR
+ * 3) Extract images from downloaded data
+ * 4) Convert data to FHIR
+ * 5) Send successful or unsuccessful notification to the R2DAccess Server
+ */
 
 public class EHRRequestProcessor /* implements Runnable */ {
 
@@ -33,82 +46,64 @@ public class EHRRequestProcessor /* implements Runnable */ {
 	
 	private final Logger logger = LoggerFactory.getLogger(EHRRequestProcessor.class);	
 	private EHRRequest ehrRequest;
+	private Boolean deleteTempFiles;
 	
 	public EHRRequestProcessor(EHRRequest ehrRequest) {
 		super();
 		this.ehrRequest = ehrRequest;
+		this.deleteTempFiles = Boolean.valueOf(Configuration.getProperty(Configuration.EHR_DELETE_TEMP_FILES));
 	}
 
 	public void run() {
-		Work authorizeCitizenToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("AuthorizeCitizenToEHRWork");
-		Work requestToEHR = (Work)EHRContextProvider.getApplicationContext().getBean("RequestToEHRWork");
-		Work extractImages = (Work)EHRContextProvider.getApplicationContext().getBean("ExtractImagesWork");
-		Work anonymizeImages = (Work)EHRContextProvider.getApplicationContext().getBean("AnonymizeImagesWork");
-		Work requestConversion = (Work)EHRContextProvider.getApplicationContext().getBean("RequestConversionWork");
-		Work SendFailureToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendFailureToR2DWork");
-		Work SendSuccessToR2D = (Work)EHRContextProvider.getApplicationContext().getBean("SendSuccessToR2DWork");
+		Work authenticateCitizenToEHRWork = (Work)EHRContextProvider.getApplicationContext().getBean("AuthenticateCitizenToEHRWork");
+		Work downloadFromEHRWork = (Work)EHRContextProvider.getApplicationContext().getBean("DownloadFromEHRWork");
+		Work extractImagesWork = (Work)EHRContextProvider.getApplicationContext().getBean("ExtractImagesWork");
+		Work anonymizeImagesWork = (Work)EHRContextProvider.getApplicationContext().getBean("AnonymizeImagesWork");
+		Work convertToFHIRWork = (Work)EHRContextProvider.getApplicationContext().getBean("ConvertToFHIRWork");
+		Work sendFailureToR2DWork = (Work)EHRContextProvider.getApplicationContext().getBean("SendFailureToR2DWork");
+		Work sendSuccessToR2DWork = (Work)EHRContextProvider.getApplicationContext().getBean("SendSuccessToR2DWork");
 		
-		// Builds the workflow
-		/*
-		WorkFlow localConversion = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("Convert data to FHIR")
-				.execute(requestConversion)
-				.when(WorkReportPredicate.ALWAYS_TRUE)
-				.then(SendSuccessToR2D)
-				.otherwise(SendFailureToR2D)
-				.build();		
-		 
-		WorkFlow conversionWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("Convert data workflow")
-				.execute(requestConversion)
+		// Builds the workflow		
+		WorkFlow conversionWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
+				.named("Conversion To FHIR workflow")
+				.execute(convertToFHIRWork)
 				.when(WorkReportPredicate.COMPLETED)
-				.then(SendSuccessToR2D)
-				.otherwise(SendFailureToR2D)
-				.build();
-		*/
-		
-		WorkFlow parallelWorkFlow = ParallelFlow.Builder.aNewParallelFlow()
-				.named("Parallerl Conversion and Anonymization")
-				.execute(anonymizeImages, requestConversion)
-				.with(Executors.newFixedThreadPool(2))
+				.then(sendSuccessToR2DWork)
+				.otherwise(sendFailureToR2DWork)
 				.build();
 		
-		
-		WorkFlow conversionAndAnonymizationWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
-				.named("Conversion and Anonymization")
-				.execute(parallelWorkFlow)
+		WorkFlow anonymizationWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
+				.named("Image anonymization workflow")
+				.execute(anonymizeImagesWork)
 				.when(WorkReportPredicate.COMPLETED)
-				.then(SendSuccessToR2D)
-				.otherwise(SendFailureToR2D)
+				.then(conversionWorkFlow)
+				.otherwise(sendFailureToR2DWork)
 				.build();
 		
-
 		WorkFlow imageReductionWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
 				.named("Image extraction workflow")
-				.execute(extractImages)
+				.execute(extractImagesWork)
 				.when(WorkReportPredicate.COMPLETED)
-				.then(conversionAndAnonymizationWorkFlow)
-				.otherwise(SendFailureToR2D)
+				.then(anonymizationWorkFlow)
+				.otherwise(sendFailureToR2DWork)
 				.build();
-
 		
 		WorkFlow ehrWorkFlow = ConditionalFlow.Builder.aNewConditionalFlow()
 				.named("Request To EHR workflow")
-				.execute(requestToEHR)
+				.execute(downloadFromEHRWork)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(imageReductionWorkFlow)
-				.otherwise(SendFailureToR2D)
+				.otherwise(sendFailureToR2DWork)
 				.build();
-
 		
 		WorkFlow mainWorkflow = ConditionalFlow.Builder.aNewConditionalFlow()
 				.named("R2DRequest Management workflow")
-				.execute(authorizeCitizenToEHR)
+				.execute(authenticateCitizenToEHRWork)
 				.when(WorkReportPredicate.COMPLETED)
 				.then(ehrWorkFlow)
-				.otherwise(SendFailureToR2D)
+				.otherwise(sendFailureToR2DWork)
 				.build();
-
+		
 		// creates the engine instance
 		WorkFlowEngine workFlowEngine = WorkFlowEngineBuilder.aNewWorkFlowEngine().build();
 
@@ -117,49 +112,49 @@ public class EHRRequestProcessor /* implements Runnable */ {
 		workContext.put(REQUEST_KEY, ehrRequest);
 		
 		// starts the workflow
-		logger.info(String.format("Starting processing of request: %s", ehrRequest.getR2dRequestId()));
 		MemoryLogger.logMemory();
-		workFlowEngine.run(mainWorkflow, workContext);
-		
-		// checks outcome of the processing
-		String errorMsg = (String) workContext.get(ERROR_MESSAGE_KEY);
-		if (errorMsg != null) 
-			logger.error("Processing of request: {} completed with ERROR: {}", ehrRequest.getR2dRequestId(), errorMsg);
-		else
-			logger.info("Processing of request: {} completed with SUCCESS", ehrRequest.getR2dRequestId());
-		
-		
-		// delete tmp files form EHRMW folder 
-		Boolean deleteTempFiles = Boolean.valueOf(Configuration.getProperty(Configuration.EHR_DELETE_TEMP_FILES));
-		if (deleteTempFiles) {
-			try {
-				deleteImageExtractionTmpFiles();
-			} catch (IOException e) {
-    			logger.warn("Not able to delete tmp files");
-			}
+		logger.info(String.format("Starting processing of request: %s", ehrRequest.getR2dRequestId()));		
+		WorkReport report = workFlowEngine.run(mainWorkflow, workContext);
+		// check status of execution of the workflow
+		if (workContext.get(ERROR_MESSAGE_KEY) == null) {
+			logger.info("Processing of request: {} completed with SUCCESS", 
+					ehrRequest.getR2dRequestId());
+		} else {
+			final String errorMsg = (String) workContext.get(ERROR_MESSAGE_KEY);
+			logger.error("Processing of request: {} completed with ERROR: {}", 
+					ehrRequest.getR2dRequestId(), errorMsg);			
 		}
+		
+		// delete tmp files from EHRMW folder 
+		if (deleteTempFiles)
+			deleteTemporaryFiles();
+
 				
 		// prints memory
 		MemoryLogger.logMemory();
 	}
 	
 	
-	private void deleteImageExtractionTmpFiles() throws IOException {
+	private void deleteTemporaryFiles() {
 		if (logger.isDebugEnabled())
-			logger.debug("Deleting temporary EHR files for image extraction....");
+			logger.debug("Deleting temporary files downloaded...");
 
 		Path filePath = Paths.get(Configuration.getDBPath());
 		final String requestId = ehrRequest.getR2dRequestId();
-		Files.walk(filePath)
-    	.filter(Files::isRegularFile)
-    	.filter(tmpFile -> tmpFile.getName(tmpFile.getNameCount() - 1).toString().startsWith(requestId))
-    	.forEach(tmpFile -> {
-    		try {
-    			Files.deleteIfExists(tmpFile);
-    		} catch (Exception ioe) {
-    			logger.warn("Not able to delete tmp file {}", tmpFile.toString());
-    		}
-    	});
+		try {
+			Files.walk(filePath)
+			.filter(Files::isRegularFile)
+			.filter(tmpFile -> tmpFile.getName(tmpFile.getNameCount() - 1).toString().startsWith(requestId))
+			.forEach(tmpFile -> {
+				try {
+					Files.deleteIfExists(tmpFile);
+				} catch (Exception ioe) {
+					logger.warn("Not able to delete tmp file {}", tmpFile.toString());
+				}
+			});
+		} catch (IOException e) {
+			logger.warn("Not able to delete tmp files...");
+		}
 	}
 
 }

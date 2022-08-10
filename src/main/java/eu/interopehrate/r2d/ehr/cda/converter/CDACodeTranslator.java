@@ -5,6 +5,13 @@ import java.util.Properties;
 
 import eu.interopehrate.r2d.ehr.converter.CodeTranslator;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Class used to convert and translates codes from a local 
+ * representation to the codes used in IEHR.
+ */
 public class CDACodeTranslator implements CodeTranslator {
 	
 private static Properties translations = new Properties();

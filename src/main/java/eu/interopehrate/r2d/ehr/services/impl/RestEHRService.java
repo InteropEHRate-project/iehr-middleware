@@ -8,8 +8,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,7 +15,6 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,10 +28,32 @@ import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
+import eu.interopehrate.r2d.ehr.model.EncounterEverythingItem;
+import eu.interopehrate.r2d.ehr.model.HeaderParam;
 import eu.interopehrate.r2d.ehr.services.EHRService;
-import eu.interopehrate.r2d.ehr.services.EncounterEverythingItem;
-import eu.interopehrate.r2d.ehr.services.HeaderParam;
 import eu.interopehrate.r2d.ehr.services.HttpInvoker;
+
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: default implementation of a proxy for invoking the REST 
+ * services provided by the EHR. This service is based on a common REST 
+ * interface defined by the InteropEHRate project. It defines the following methods:
+ * 
+ * 1) authorize citizen   : GET <ehr base>/citizen/$authorize?firstName=$firstName$&familyName=$familyName$&dateOfBirth=$dateOfBirth$
+ * 2) patient summary     : GET <ehr base>/patient/patient-summary?patientId=$patientId$
+ * 3) citizen encounters  : GET <ehr base>/encounter?patientId=$patientId$
+ * 4) encounter everything: GET <ehr base>/encounter/everything?encounterId=$encounterId$&patientId=$patientId$
+ * 
+ * These services are configured in the application.properties file, where all the needed
+ * additional information (EHR base URL, mime types, API KEY) are defined.
+ * 
+ * When requesting the encounter everything, the EHR replies with a list of items 
+ * (composed by a type and a URL), where each one represent a portion of the health 
+ * data produced during the encounter. Each item has to be downloaded and converted.
+ *
+ */
 
 public class RestEHRService implements EHRService {
 	private static final Logger logger = LoggerFactory.getLogger(RestEHRService.class);
@@ -75,7 +94,7 @@ public class RestEHRService implements EHRService {
 		servicePath = servicePath.replace("$firstName$", theCitizen.getFirstName());
 		servicePath = servicePath.replace("$familyName$", theCitizen.getFamilyName());
 		servicePath = servicePath.replace("$dateOfBirth$", theCitizen.getDateOfBirth());
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
+		URI serviceURI = createServiceURI(servicePath);
 
 		// create response
 		EHRResponse ehrResponse = new EHRResponse();
@@ -124,12 +143,12 @@ public class RestEHRService implements EHRService {
 		
 		// #2 placeholders replacement
 		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
-		URI serviceURI = createServiceURI(GET_PATIENT_SUMMARY_SERVICE_NAME, servicePath);
+		URI serviceURI = createServiceURI(servicePath);
 		
 		// #3 invokes service		
 		return downloadFileFromEHR(serviceURI, theRequestId);
 	}
-
+	
 	
 	@Override
 	public EHRFileResponse executeSearchEncounter(Date theFromDate, String theRequestId, 
@@ -144,7 +163,7 @@ public class RestEHRService implements EHRService {
 		if (theFromDate != null) {
 			servicePath = servicePath + String.format("&from=%s", dateFormatter.format(theFromDate));	
 		}
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, servicePath);
+		URI serviceURI = createServiceURI(servicePath);
 		
 		// #3 invokes service
 		return downloadFileFromEHR(serviceURI, theRequestId);
@@ -162,21 +181,21 @@ public class RestEHRService implements EHRService {
 			throw new IllegalStateException("No items found in EHR for encounter: " + theEncounterId);
 		}
 		
-		// #1 retrieves the each individual component
+		// #2 retrieves each individual component listed in the list at #1
 		EHRFileResponse encounterEverythingResponse = new EHRFileResponse();
 		ContentType mime = ContentType.parse(Configuration.getProperty(Configuration.EHR_MIME));
 		encounterEverythingResponse.setContentType(mime);
 
-		EHRFileResponse individualItemResponse;
+		EHRFileResponse response;
 		for (EncounterEverythingItem item : items) {
-			logger.debug("Requesting element '{}' of encounter {}", item.getType(), theEncounterId);
-			individualItemResponse = downloadFileFromEHR(new URI(item.getUrl()), theRequestId);
-			if (individualItemResponse.getStatus() == EHRResponseStatus.FAILED) {
-				encounterEverythingResponse.setMessage(individualItemResponse.getMessage());
+			logger.debug("Requesting element '{}' of encounter '{}'", item.getType(), theEncounterId);
+			response = downloadFileFromEHR(new URI(item.getUri()), item.getType(), theRequestId);
+			if (response.getStatus() == EHRResponseStatus.FAILED) {
+				encounterEverythingResponse.setMessage(response.getMessage());
 				encounterEverythingResponse.setStatus(EHRResponseStatus.FAILED);
 				return encounterEverythingResponse;
 			} else {
-				encounterEverythingResponse.addResponseFile(individualItemResponse.getResponseFile(0));
+				encounterEverythingResponse.addResponseFile(response.getResponseFile(0));
 			}
 		}
 		encounterEverythingResponse.setStatus(EHRResponseStatus.COMPLETED);
@@ -195,8 +214,7 @@ public class RestEHRService implements EHRService {
 		// #2 placeholders replacement
 		servicePath = servicePath.replace(PATIENT_ID_PLACEHOLDER, ehrPatientId);
 		servicePath = servicePath.replace(ENCOUNTER_ID_PLACEHOLDER, theEncounterId);
-		final String encodedServicePath = URLEncoder.encode(servicePath, StandardCharsets.UTF_8.toString());
-		URI serviceURI = createServiceURI(GET_PATIENT_SERVICE_NAME, encodedServicePath);
+		URI serviceURI = createServiceURI(servicePath);
 		
 		// invokes REST service
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -228,6 +246,10 @@ public class RestEHRService implements EHRService {
 	}
 	
 
+	protected EHRFileResponse downloadFileFromEHR(URI uri, String theRequestId) throws Exception {
+		return downloadFileFromEHR(uri, null, theRequestId);
+	}
+	
 	/**
 	 * Execute the GET operation
 	 * 
@@ -235,14 +257,15 @@ public class RestEHRService implements EHRService {
 	 * @return
 	 * @throws Exception
 	 */
-	protected EHRFileResponse downloadFileFromEHR(URI uri, String theRequestId) throws Exception {
+	protected EHRFileResponse downloadFileFromEHR(URI uri, String type, String theRequestId) throws Exception {
 		// #1 creates output file
-		File out = new File(storagePath + theRequestId + fileExtension);
+		File out = (type != null) ? new File(storagePath + theRequestId + "_" + type + fileExtension) 
+								  : new File(storagePath + theRequestId + fileExtension);
+			
 		// #2 executes the GET		
 		int retCode = httpInvoker.executeGet(uri, out, getAdditionalHeaderParams());
 		final EHRFileResponse ehrFileResponse = new EHRFileResponse();
-		out = new File(storagePath + theRequestId + fileExtension);
-		
+			
 		if (retCode == HttpStatus.SC_OK && out.length() > 0) {
 			ContentType mime = ContentType.parse(Configuration.getProperty(Configuration.EHR_MIME));
 			ehrFileResponse.setContentType(mime);
@@ -298,14 +321,13 @@ public class RestEHRService implements EHRService {
 	/**
 	 * Builds the serviceURL reading the configuration file
 	 * 
-	 * @param serviceName
 	 * @param servicePath
 	 * @return
 	 * @throws NumberFormatException
 	 * @throws MalformedURLException
 	 * @throws URISyntaxException 
 	 */
-	protected URI createServiceURI(String serviceName, String servicePath) throws Exception {
+	protected URI createServiceURI(String servicePath) throws Exception {
 		String ehrProtocol = Configuration.getProperty(Configuration.EHR_PROTOCOL);
 		String ehrHost = Configuration.getProperty(Configuration.EHR_HOST);
 		String ehrPort = Configuration.getProperty(Configuration.EHR_PORT);

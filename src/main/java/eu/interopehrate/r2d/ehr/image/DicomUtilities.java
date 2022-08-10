@@ -3,6 +3,12 @@ package eu.interopehrate.r2d.ehr.image;
 import java.io.File;
 import java.io.FilenameFilter;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: 
+ */
 public class DicomUtilities {
 
 	private static final String DICOM_STANDARD_FOLDER = "DICOM";

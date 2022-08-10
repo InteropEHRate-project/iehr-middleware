@@ -22,7 +22,6 @@ import org.hl7.fhir.r4.model.Condition;
 import org.hl7.fhir.r4.model.DiagnosticReport;
 import org.hl7.fhir.r4.model.Encounter;
 import org.hl7.fhir.r4.model.Media;
-import org.hl7.fhir.r4.model.Medication;
 import org.hl7.fhir.r4.model.MedicationStatement;
 import org.hl7.fhir.r4.model.Observation;
 import org.hl7.fhir.r4.model.Patient;
@@ -38,7 +37,15 @@ import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.EHRMWServer;
 import eu.interopehrate.r2d.ehr.converter.Converter;
 
-
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: local converter class used to convert the XML/CDA
+ * of the Medical Visit to the corresponding FHIR Bundle.
+ * 
+ * It was used mainly for testing purposes.
+ */
 public class CDAEncounterEverythingConverter implements Converter {
 	
 	@Override

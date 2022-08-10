@@ -18,6 +18,14 @@ import eu.interopehrate.sr2dsm.SR2DSM;
 import eu.interopehrate.sr2dsm.model.ResponseDetails;
 import eu.interopehrate.sr2dsm.model.UserDetails;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: HAPI FHIR interceptor used to validate the incoming
+ * requests sent by the R2D Access Server.
+ */
+
 @Interceptor
 public class R2DRequestValidator {
 	private static final Logger LOGGER = LoggerFactory.getLogger(R2DRequestValidator.class);

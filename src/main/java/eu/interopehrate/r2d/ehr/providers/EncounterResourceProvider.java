@@ -23,6 +23,12 @@ import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.r2d.ehr.security.SecurityConstants;
 import eu.interopehrate.r2d.ehr.workflow.EHRRequestController;
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: FHIR provider for the Encounter resource.
+ */
 
 @Service
 public class EncounterResourceProvider implements IResourceProvider {

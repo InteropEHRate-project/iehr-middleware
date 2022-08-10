@@ -1,5 +1,12 @@
-package eu.interopehrate.r2d.ehr.services;
+package eu.interopehrate.r2d.ehr.model;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: this class represents an header param to be added to
+ * an HTTP request executed by the HttpInvoker.
+ */
 public class HeaderParam {
 	
 	private String name;
@@ -23,7 +30,5 @@ public class HeaderParam {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
-	
 
 }

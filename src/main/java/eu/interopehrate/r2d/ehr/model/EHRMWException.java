@@ -1,5 +1,12 @@
 package eu.interopehrate.r2d.ehr.model;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: generic wrapper exception thrown by several methods of
+ * classes of the EHR Middleware.
+ */
 public class EHRMWException extends Exception {
 
 	/**

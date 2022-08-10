@@ -14,12 +14,23 @@ import eu.interopehrate.r2d.ehr.image.ImageExtractor;
 import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Implementation of a Work class to handle the activity 
+ * to extract images from files downloaded from the EHR.
+ */
+
 public class ExtractImageWork implements Work {
 
 	private final Logger logger = LoggerFactory.getLogger(ExtractImageWork.class);
 	
 	@Override
 	public WorkReport execute(WorkContext workContext) {
+		if (logger.isDebugEnabled())
+			logger.debug("Starting Task: 'Extract images from data downloaded from EHR'");
+		
 		// retrieves image extractor bean
 		String beanName = Configuration.getProperty(Configuration.EHR_IMAGE_EXTRACTOR_BEAN);
 		ImageExtractor imageExtractor = (ImageExtractor)

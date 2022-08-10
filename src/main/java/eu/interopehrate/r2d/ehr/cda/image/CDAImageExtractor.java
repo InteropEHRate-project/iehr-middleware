@@ -1,4 +1,4 @@
-package eu.interopehrate.r2d.ehr.cda;
+package eu.interopehrate.r2d.ehr.cda.image;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;
@@ -27,6 +27,17 @@ import eu.interopehrate.r2d.ehr.image.ImageConstants;
 import eu.interopehrate.r2d.ehr.image.ImageExtractor;
 import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: image extractor for FTGM. This class implements
+ * a SAX Parser, that detects tags for images. It extracts image data from
+ * an XML/CDA file and stores them in a separate file. 
+ * 
+ * This parser produces a file for every image found and a reduced 
+ * XML/CDA file that does not contain the images but only some textual placeholders.
+ */
 public class CDAImageExtractor extends DefaultHandler implements ImageExtractor {
 	private static final double KILOBYTE = 1024D;
 	private static final String DICOM_ZIP_MIME = "application/dicom+zip";
@@ -73,7 +84,7 @@ public class CDAImageExtractor extends DefaultHandler implements ImageExtractor 
 		File fileToReduce = fileResponse.getFirstResponseFile();
 		// Checks if the file contains DICOM images
 		if (!needsToExtractImages(fileToReduce.getAbsolutePath())) {
-			logger.info("File: {} does not need to be reduced...", 
+			logger.info("File: {} does not contain images to be extracted...", 
 					fileToReduce.getName());
 			
 			return fileResponse;

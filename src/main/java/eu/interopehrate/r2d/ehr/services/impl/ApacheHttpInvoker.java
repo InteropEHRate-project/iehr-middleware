@@ -26,14 +26,45 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import eu.interopehrate.r2d.ehr.Configuration;
-import eu.interopehrate.r2d.ehr.services.HeaderParam;
+import eu.interopehrate.r2d.ehr.model.HeaderParam;
 import eu.interopehrate.r2d.ehr.services.HttpInvoker;
+
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Implementation of the interface HttpInvoker based on Apache HttpClient
+ */
 
 public class ApacheHttpInvoker implements HttpInvoker {
 	private final Logger logger = LoggerFactory.getLogger(ApacheHttpInvoker.class);
 
 	
-	
+	@Override
+	public int executeGet(URI uri, HeaderParam... headerParams) throws IOException {
+		if (logger.isDebugEnabled())
+			logger.debug("Invoking GET service: {}", uri.toString());
+
+		try (CloseableHttpClient httpclient = createClient()) {
+			// Creates and config GET request
+			HttpGet httpGet = new HttpGet(uri);
+			httpGet.setConfig(createRequestConfig());
+			
+			// Adds request header params
+			for (HeaderParam param : headerParams)
+				httpGet.addHeader(param.getName(), param.getValue());
+			
+			// Executes request
+			try (CloseableHttpResponse response = httpclient.execute(httpGet)) {
+				if (logger.isDebugEnabled())
+					logger.debug("Service returned the following code: {}", response.getStatusLine().getStatusCode());
+				
+				return response.getStatusLine().getStatusCode();
+			}
+		} 
+	}
+
+
 	@Override
 	public int executeGet(URI uri, OutputStream output, HeaderParam... headerParams) throws IOException {
 		if (logger.isDebugEnabled())
@@ -66,7 +97,6 @@ public class ApacheHttpInvoker implements HttpInvoker {
 			}
 		} 
 	}
-
 
 
 	@Override
@@ -107,7 +137,6 @@ public class ApacheHttpInvoker implements HttpInvoker {
 	}
 
 	
-	
 	@Override
 	public int executePost(URI uri, File body, String contentType) throws IOException {
 		return this.executePost(uri, body, contentType, new HeaderParam[0]);
@@ -130,6 +159,9 @@ public class ApacheHttpInvoker implements HttpInvoker {
 
 			// sets body mime type
 			ContentType mime = ContentType.parse(contentType);
+			//if (logger.isDebugEnabled())
+			//	logger.debug("Invoking with the following Content-Type: {}", mime.toString());
+			
 			// set body
 			httpPost.setEntity(new FileEntity(body, mime));
 			

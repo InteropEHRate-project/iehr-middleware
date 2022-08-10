@@ -25,6 +25,12 @@ import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.EHRMWServer;
 import eu.interopehrate.r2d.ehr.converter.Converter;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: local converter for a list of encounters.
+ */
 public class CHUEncounterListConverter implements Converter {
 
 	@Override

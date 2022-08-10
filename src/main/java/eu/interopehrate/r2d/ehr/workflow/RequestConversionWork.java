@@ -22,6 +22,14 @@ import eu.interopehrate.r2d.ehr.model.R2DOperation;
 import eu.interopehrate.r2d.ehr.services.IHSService;
 import eu.interopehrate.r2d.ehr.services.impl.LocalConversionService;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Implementation of a Work class to handle the activity 
+ * to download data from EHR.
+ */
+
 class RequestConversionWork implements Work {
 
 	@Autowired(required = true)
@@ -31,6 +39,9 @@ class RequestConversionWork implements Work {
 
 	@Override
 	public WorkReport execute(WorkContext workContext) {
+		if (logger.isDebugEnabled())
+			logger.debug("Starting Task: 'Conversion of data downloaded from EHR'");
+		
 		// retrieves IHS service bean
 		String beanName = Configuration.getProperty(Configuration.IHS_SERVICE_BEAN);
 		IHSService ihsService = (IHSService)
@@ -63,17 +74,39 @@ class RequestConversionWork implements Work {
 		// Remote conversion with IHS
 		else {
 			// #1 submit first request to the IHS Service for requesting a conversion
+			// TO FIX: test with UNITN
+			/*
 			try {
-				ihsService.requestConversion(ehrRequest, ehrReducedResponse);			
+				ihsService.startTransaction();		
+			} catch (Exception | Error e) {
+				logger.error("Task completed with error: " + e.getMessage(), e);
+				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
+				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
+			}
+			*/
+						
+			// #2 submit first request to the IHS Service for requesting a conversion
+			try {
+				ihsService.requestConversion(ehrRequest, ehrReducedResponse, patientId);			
 			} catch (Exception | Error e) {
 				logger.error("Task completed with error: " + e.getMessage(), e);
 				workContext.put(EHRRequestProcessor.ERROR_MESSAGE_KEY, e.getMessage());
 				return new DefaultWorkReport(WorkStatus.FAILED, workContext);
 			}
 			
-			// #2 sends a second request to the IHS Service for retrieving the results
+			// this sleep is needed because sometimes happens that the 
+			// retrieveFHIRHealthRecord starts when some operations of
+			// requestConversion method are still executing. 
+			// Probably the IHS-DB uses some async operations
 			try {
-				EHRResponse ihsResponse = ihsService.retrieveFHIRHealthRecord(ehrRequest);
+				Thread.sleep(2000);
+			} catch (InterruptedException e1) {
+				logger.error("Error during Thread.sleep()");				
+			}
+			
+			// #3 sends a second request to the IHS Service for retrieving the results
+			try {
+				EHRResponse ihsResponse = ihsService.retrieveFHIRHealthRecord(ehrRequest, patientId);
 				if (ihsResponse.getStatus() == EHRResponseStatus.COMPLETED) {
 					workContext.put(EHRRequestProcessor.FHIR_DATA_KEY, ihsResponse);
 					return new DefaultWorkReport(WorkStatus.COMPLETED, workContext);

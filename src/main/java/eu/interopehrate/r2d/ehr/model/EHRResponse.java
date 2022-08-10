@@ -2,6 +2,16 @@ package eu.interopehrate.r2d.ehr.model;
 
 import org.apache.http.entity.ContentType;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: this class represent a response produced during 
+ * the processing of an instance of EHRRequest. In this case the
+ * response is stored in memory as a String.
+ * 
+ * @SeeAlso: EHRFileResponse.java.
+ */
 public class EHRResponse {
 	
 	private ContentType contentType;

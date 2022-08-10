@@ -9,10 +9,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.interopehrate.r2d.ehr.Configuration;
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
+import eu.interopehrate.r2d.ehr.model.HeaderParam;
 import eu.interopehrate.r2d.ehr.security.SecurityConstants;
-import eu.interopehrate.r2d.ehr.services.HeaderParam;
 import eu.interopehrate.r2d.ehr.services.HttpInvoker;
 import eu.interopehrate.r2d.ehr.services.R2DAccessService;
+
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Default implementation of a proxy invoking
+ * rest services of the R2DAccess Server used for notyfing 
+ * the status of the processing of a request.
+ * 
+ * Needed parameters to invoke the R2DAccess Server service are 
+ * configured in the application.properties file.
+ */
 
 public class RestR2DAccessService implements R2DAccessService {
 

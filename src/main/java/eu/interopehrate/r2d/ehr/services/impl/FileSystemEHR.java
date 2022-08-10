@@ -16,6 +16,14 @@ import eu.interopehrate.r2d.ehr.model.EHRResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponseStatus;
 import eu.interopehrate.r2d.ehr.services.EHRService;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Dummy implementation of the EHRService based on retrieving files
+ * from file system. It was used only for testing purposes.
+ */
+
 public class FileSystemEHR implements EHRService {
 
 	private final static String PATIENT_ID = "patient0";

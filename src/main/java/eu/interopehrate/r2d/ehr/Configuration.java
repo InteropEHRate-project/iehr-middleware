@@ -3,6 +3,12 @@ package eu.interopehrate.r2d.ehr;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Configuration class that wraps the "application.properties" file
+ */
 public final class Configuration {
 
 	public static final String EHR_MW_CREDENTIALS = "ehrmw.credentials";
@@ -32,6 +38,7 @@ public final class Configuration {
 	public static final String EHR_LANGUAGE = "ehr.language";
 	public static final String EHR_ANONYMIZE_IMAGES = "ehr.anonymizeImage";
 	public static final String EHR_IMAGE_EXTRACTOR_BEAN = "ehr.imageExtractor.bean";
+	public static final String EHR_IMAGE_ANONYMIZER_BEAN = "ehr.imageAnonymizer.bean";
 	public static final String EHR_EHR_SERVICE_BEAN = "ehr.ehrService.bean";
 	
 	private static Properties config = new Properties();

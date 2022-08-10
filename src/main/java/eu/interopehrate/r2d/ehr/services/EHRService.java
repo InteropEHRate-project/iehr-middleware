@@ -6,6 +6,20 @@ import eu.interopehrate.r2d.ehr.model.Citizen;
 import eu.interopehrate.r2d.ehr.model.EHRFileResponse;
 import eu.interopehrate.r2d.ehr.model.EHRResponse;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: interface of the EHRService to execute the following services:
+ * 1) authenticate citizen to EHR
+ * 2) download of the patient summary
+ * 3) download of the list of the encounters of the patient
+ * 4) download of the health data produced during an encounter
+ * 
+ * @SeeAlso: RestEHRService.java
+ * 
+ */
+
 public interface EHRService {
 	public static final String GET_PATIENT_SERVICE_NAME = "GET_PATIENT";
 	public static final String GET_PATIENT_SUMMARY_SERVICE_NAME = "GET_PATIENT_SUMMARY";

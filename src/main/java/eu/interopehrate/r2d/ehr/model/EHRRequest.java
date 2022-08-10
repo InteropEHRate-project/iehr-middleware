@@ -6,6 +6,16 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Locale.LanguageRange;
 
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: This class represent a request done to the EHR Middleware.
+ * 
+ * The EHRMiddleware receives requests from a FHIR API, later each request
+ * is converted into an instance of EHRRequest, and passed to all the 
+ * activities of the workflow used to process a request.
+ */
 public class EHRRequest {
 	public static final String PARAM_FROM = "from";
 	public static final String PARAM_TYPE = "type";

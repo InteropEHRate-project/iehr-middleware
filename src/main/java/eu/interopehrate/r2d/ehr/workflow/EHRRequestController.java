@@ -2,13 +2,22 @@ package eu.interopehrate.r2d.ehr.workflow;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.interopehrate.r2d.ehr.model.EHRRequest;
+
+/**
+ *      Author: Engineering Ingegneria Informatica
+ *     Project: InteropEHRate - www.interopehrate.eu
+ *
+ * Description: Controller class that receives requests from 
+ * the FHIR resource providers to start request processing.
+ * 
+ * The processing of the request is delegated to an instance of
+ * EHRRequestProcessor.
+ */
 
 public class EHRRequestController implements Runnable {
 	// @Autowired(required = true)
